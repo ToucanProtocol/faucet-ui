@@ -139,14 +139,19 @@ const Home: NextPage = () => {
                 </div>
               </div>
               <div className="hidden md:flex">
-                <button
-                  onClick={() => {
-                    connectWallet();
-                  }}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700"
-                >
-                  Connect Wallet
-                </button>
+                {/* if the wallet exists don't render anything, if yes render a wallet connection btn */}
+                {wallet ? (
+                  ""
+                ) : (
+                  <button
+                    onClick={() => {
+                      connectWallet();
+                    }}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700"
+                  >
+                    Connect Wallet
+                  </button>
+                )}
               </div>
             </nav>
 
@@ -184,14 +189,19 @@ const Home: NextPage = () => {
                       </a>
                     ))}
                   </div>
-                  <button
-                    onClick={() => {
-                      connectWallet();
-                    }}
-                    className="block w-full px-5 py-3 text-center font-medium text-indigo-600 bg-gray-50 hover:bg-gray-100"
-                  >
-                    Connect Wallet
-                  </button>
+                  {/* if the wallet exists don't render anything, if yes render a wallet connection btn */}
+                  {wallet ? (
+                    ""
+                  ) : (
+                    <button
+                      onClick={() => {
+                        connectWallet();
+                      }}
+                      className="block w-full px-5 py-3 text-center font-medium text-indigo-600 bg-gray-50 hover:bg-gray-100"
+                    >
+                      Connect Wallet
+                    </button>
+                  )}
                 </div>
               </Popover.Panel>
             </Transition>
