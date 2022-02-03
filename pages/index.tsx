@@ -17,7 +17,7 @@ const navigation = [
     href: "https://mumbai.polygonscan.com/address/0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84",
   },
   {
-    name: "TCO2 Polygonscan",
+    name: "TCO2-VCS-439-2008",
     href: "https://mumbai.polygonscan.com/token/0xa5831eb637dff307395b5183c86b04c69c518681",
   },
 ];
@@ -80,7 +80,7 @@ const Home: NextPage = () => {
       return;
     }
     const amountSent = 1;
-    toast(`Sent ${amountSent} TCO2-VCS-439-2008 to you.`, toastOptions);
+    toast(`🌳 Sent ${amountSent} TCO2-VCS-439-2008 to you.`, toastOptions);
   };
 
   useEffect(() => {
