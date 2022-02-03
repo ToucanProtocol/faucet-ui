@@ -391,7 +391,13 @@ const Home: NextPage = ({ staticBalance }: any) => {
                           }}
                           className="space-y-6"
                         >
-                          <p>There are {balance} TCO2 coins left. Get some!</p>
+                          {balance == "NaN" ? (
+                            <p>Get some TCO2 coins</p>
+                          ) : (
+                            <p>
+                              There are {balance} TCO2 coins left. Get some!
+                            </p>
+                          )}
 
                           <div>
                             <button
