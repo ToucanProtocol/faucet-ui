@@ -107,8 +107,6 @@ const Home: NextPage = () => {
       );
       await withdrawTxn.wait();
 
-      // TODO check txn success
-
       toast(`🌳 Sent ${amountToSend} TCO2-VCS-439-2008 to you.`, toastOptions);
     } catch (error: any) {
       console.error("Error when withdrawing TCO2", error);
