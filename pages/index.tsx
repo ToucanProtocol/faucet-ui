@@ -220,7 +220,8 @@ const Home: NextPage = () => {
                     </h1>
                     <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
                       Connect your wallet and get some test TCO2 sent to your
-                      Mumbai wallet. Please know that there is a 30s timeout.
+                      Mumbai wallet. Please know that there is a 30s timeout
+                      after each request.
                     </p>
                   </div>
                 </div>
