@@ -354,23 +354,57 @@ const Home: NextPage = () => {
                         as="h3"
                         className="text-lg leading-6 font-medium text-gray-900"
                       >
-                        Payment successful
+                        Deposit TCO2-VCS-439-2008
                       </Dialog.Title>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
-                          Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Consequatur amet labore.
+                          Thank you so much for wanting to deposit Mumbai TCO2
+                          so other people can enjoy using it in their test apps.
+                          You're awesome!
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="mt-5 sm:mt-6">
+                    <div>
+                      <label
+                        htmlFor="price"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Amount to send
+                      </label>
+                      <div className="mt-1 relative rounded-md shadow-sm">
+                        <input
+                          type="text"
+                          name="amount"
+                          id="amount"
+                          className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
+                          placeholder="0.00"
+                          aria-describedby="amount-currency"
+                        />
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <span
+                            className="text-gray-500 sm:text-sm"
+                            id="amount-currency"
+                          >
+                            TCO2
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                     <button
                       type="button"
-                      className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-                      onClick={() => setDepositModalOpen(false)}
+                      onClick={() => depositTCO2()}
+                      className="mt-3 inline-flex items-center w-full justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      Go back to dashboard
+                      Deposit TCO2
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDepositModalOpen(false)}
+                      className="mt-3 inline-flex items-center w-full justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      Go back
                     </button>
                   </div>
                 </div>
