@@ -5,12 +5,18 @@ import { Fragment } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { ChevronRightIcon } from "@heroicons/react/solid";
+import Link from "next/link";
 
 const navigation = [
-  { name: "Product", href: "#" },
-  { name: "Features", href: "#" },
-  { name: "Marketplace", href: "#" },
-  { name: "Company", href: "#" },
+  { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
+  {
+    name: "Contract Polygonscan",
+    href: "https://mumbai.polygonscan.com/address/0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84",
+  },
+  {
+    name: "TCO2 Polygonscan",
+    href: "https://mumbai.polygonscan.com/token/0xa5831eb637dff307395b5183c86b04c69c518681",
+  },
 ];
 
 const Home: NextPage = () => {
@@ -33,36 +39,6 @@ const Home: NextPage = () => {
       </Head>
 
       <div className="relative bg-gray-800 overflow-hidden">
-        <div
-          className="hidden sm:block sm:absolute sm:inset-0"
-          aria-hidden="true"
-        >
-          <svg
-            className="absolute bottom-0 right-0 transform translate-x-1/2 mb-48 text-gray-700 lg:top-0 lg:mt-28 lg:mb-0 xl:transform-none xl:translate-x-0"
-            width={364}
-            height={384}
-            viewBox="0 0 364 384"
-            fill="none"
-          >
-            <defs>
-              <pattern
-                id="eab71dd9-9d7a-47bd-8044-256344ee00d0"
-                x={0}
-                y={0}
-                width={20}
-                height={20}
-                patternUnits="userSpaceOnUse"
-              >
-                <rect x={0} y={0} width={4} height={4} fill="currentColor" />
-              </pattern>
-            </defs>
-            <rect
-              width={364}
-              height={384}
-              fill="url(#eab71dd9-9d7a-47bd-8044-256344ee00d0)"
-            />
-          </svg>
-        </div>
         <div className="relative pt-6 pb-16 sm:pb-24">
           <Popover>
             <nav
@@ -71,14 +47,18 @@ const Home: NextPage = () => {
             >
               <div className="flex items-center flex-1">
                 <div className="flex items-center justify-between w-full md:w-auto">
-                  <a href="#">
-                    <span className="sr-only">Workflow</span>
-                    <img
-                      className="h-8 w-auto sm:h-10"
-                      src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg"
-                      alt=""
-                    />
-                  </a>
+                  <Link href="https://toucan.earth">
+                    <a>
+                      <span className="sr-only">Toucan</span>
+                      <Image
+                        src="/toucan-logo.svg"
+                        width="128"
+                        height="64"
+                        className="h-8 w-auto sm:h-10"
+                        alt="Toucan logo"
+                      />
+                    </a>
+                  </Link>
                   <div className="-mr-2 flex items-center md:hidden">
                     <Popover.Button className="bg-gray-800 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-700 focus:outline-none focus:ring-2 focus-ring-inset focus:ring-white">
                       <span className="sr-only">Open main menu</span>
@@ -99,12 +79,14 @@ const Home: NextPage = () => {
                 </div>
               </div>
               <div className="hidden md:flex">
-                <a
-                  href="#"
+                <button
+                  onClick={() => {
+                    connectWallet();
+                  }}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700"
                 >
-                  Log in
-                </a>
+                  Connect Wallet
+                </button>
               </div>
             </nav>
 
@@ -123,13 +105,7 @@ const Home: NextPage = () => {
               >
                 <div className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5 overflow-hidden">
                   <div className="px-5 pt-4 flex items-center justify-between">
-                    <div>
-                      <img
-                        className="h-8 w-auto"
-                        src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
-                        alt=""
-                      />
-                    </div>
+                    <div className="text-lg font-medium">Toucan.earth</div>
                     <div className="-mr-2">
                       <Popover.Button className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                         <span className="sr-only">Close menu</span>
@@ -148,12 +124,14 @@ const Home: NextPage = () => {
                       </a>
                     ))}
                   </div>
-                  <a
-                    href="#"
+                  <button
+                    onClick={() => {
+                      connectWallet();
+                    }}
                     className="block w-full px-5 py-3 text-center font-medium text-indigo-600 bg-gray-50 hover:bg-gray-100"
                   >
-                    Log in
-                  </a>
+                    Connect Wallet
+                  </button>
                 </div>
               </Popover.Panel>
             </Transition>
