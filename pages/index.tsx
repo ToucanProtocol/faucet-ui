@@ -4,13 +4,13 @@ import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 import { Dialog, Popover, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
-import { ChevronRightIcon } from "@heroicons/react/solid";
 import Link from "next/link";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastOptions } from "react-toastify";
 import { ethers } from "ethers";
 import { Loader } from "../components/Loader";
 import * as faucetAbi from "../utils/TCO2Faucet.json";
+import * as tcoAbi from "../utils/ToucanCarbonOffsets.json";
 
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
@@ -34,11 +34,15 @@ const toastOptions: ToastOptions = {
   progress: undefined,
 };
 
+const faucetAddress = "0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84";
+const tco2Address = "0xa5831eb637dff307395b5183c86b04c69c518681";
+
 const Home: NextPage = () => {
-  const tco2Balance = 1232341;
   const [wallet, setWallet] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [depositModalOpen, setDepositModalOpen] = useState(false);
+  const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
+  const [amountToDeposit, setAmountToDeposit] = useState<string>("1.0");
+  const [balance, setBalance] = useState<string>("0");
 
   const connectWallet = async () => {
     console.log("attempting to connect to the MetaMask wallet");
@@ -71,12 +75,70 @@ const Home: NextPage = () => {
     }
   };
 
-  const getBalance = () => {
-    throw new Error("Function not implemented.");
+  const getBalance = async () => {
+    try {
+      setLoading(true);
+
+      // @ts-ignore
+      const { ethereum } = window;
+      if (!ethereum) {
+        throw new Error("You need Metamask.");
+      }
+
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const signer = provider.getSigner();
+      const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
+
+      const balanceTxn = await faucet.getTokenBalance(tco2Address, {
+        gasLimit: 1200000,
+      });
+      setBalance(ethers.utils.formatEther(balanceTxn));
+      // TODO doesn't refresh when done
+    } catch (error: any) {
+      console.error("error when fetching TCO2 balance of the faucet", error);
+      toast.error(error.message, toastOptions);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const depositTCO2 = () => {
-    throw new Error("Function not implemented.");
+  const depositTCO2 = async () => {
+    try {
+      setLoading(true);
+
+      // @ts-ignore
+      const { ethereum } = window;
+      if (!ethereum) {
+        throw new Error("You need Metamask.");
+      }
+
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const signer = provider.getSigner();
+      const tco = new ethers.Contract(tco2Address, tcoAbi.abi, signer);
+      const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
+
+      await tco.approve(
+        faucet.address,
+        ethers.utils.parseEther(amountToDeposit)
+      );
+
+      // we then deposit the amount of TCO2 into the faucet contract
+      const depositTxn = await faucet.deposit(
+        tco2Address,
+        ethers.utils.parseEther(amountToDeposit),
+        {
+          gasLimit: 1200000,
+        }
+      );
+      await depositTxn.wait();
+
+      toast(`You deposited ${amountToDeposit}`, toastOptions);
+    } catch (error: any) {
+      console.error("error when depositing TCO2", error);
+      toast.error(error.message, toastOptions);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const withdrawTCO2 = async () => {
@@ -86,9 +148,7 @@ const Home: NextPage = () => {
       }
       setLoading(true);
 
-      const amountToSend = "2.0";
-      const faucetAddress = "0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84";
-      const tco2Address = "0xa5831eb637dff307395b5183c86b04c69c518681";
+      const amountToWithdraw = "2.0";
 
       // @ts-ignore
       const { ethereum } = window;
@@ -102,14 +162,17 @@ const Home: NextPage = () => {
 
       const withdrawTxn = await faucet.withdraw(
         tco2Address,
-        ethers.utils.parseEther(amountToSend),
+        ethers.utils.parseEther(amountToWithdraw),
         {
           gasLimit: 1200000,
         }
       );
       await withdrawTxn.wait();
 
-      toast(`🌳 Sent ${amountToSend} TCO2-VCS-439-2008 to you.`, toastOptions);
+      toast(
+        `🌳 Sent ${amountToWithdraw} TCO2-VCS-439-2008 to you.`,
+        toastOptions
+      );
     } catch (error: any) {
       console.error("Error when withdrawing TCO2", error);
       toast.error(error.message, toastOptions);
@@ -124,6 +187,10 @@ const Home: NextPage = () => {
       toast.success(`Your wallet is connected.`, toastOptions);
     }
   }, [wallet]);
+
+  useEffect(() => {
+    getBalance();
+  }, [balance]);
 
   return (
     <div>
@@ -287,9 +354,7 @@ const Home: NextPage = () => {
                           }}
                           className="space-y-6"
                         >
-                          <p>
-                            There are {tco2Balance} TCO2 coins left. Get some!
-                          </p>
+                          <p>There are {balance} TCO2 coins left. Get some!</p>
 
                           <div>
                             <button
@@ -366,39 +431,47 @@ const Home: NextPage = () => {
                     </div>
                   </div>
                   <div className="mt-5 sm:mt-6">
-                    <div>
-                      <label
-                        htmlFor="price"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Amount to send
-                      </label>
-                      <div className="mt-1 relative rounded-md shadow-sm">
-                        <input
-                          type="text"
-                          name="amount"
-                          id="amount"
-                          className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-12 sm:text-sm border-gray-300 rounded-md"
-                          placeholder="1.00"
-                          aria-describedby="amount-currency"
-                        />
-                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                          <span
-                            className="text-gray-500 sm:text-sm"
-                            id="amount-currency"
-                          >
-                            TCO2
-                          </span>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        depositTCO2();
+                      }}
+                    >
+                      <div>
+                        <label
+                          htmlFor="price"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          Amount to send
+                        </label>
+                        <div className="mt-1 relative rounded-md shadow-sm">
+                          <input
+                            onChange={(e) => setAmountToDeposit(e.target.value)}
+                            type="text"
+                            name="amount"
+                            id="amount"
+                            className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-12 sm:text-sm border-gray-300 rounded-md"
+                            placeholder="1.00"
+                            aria-describedby="amount-currency"
+                          />
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <span
+                              className="text-gray-500 sm:text-sm"
+                              id="amount-currency"
+                            >
+                              TCO2
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => depositTCO2()}
-                      className="mt-3 inline-flex items-center w-full justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Deposit TCO2
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => depositTCO2()}
+                        className="mt-3 inline-flex items-center w-full justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        Deposit TCO2
+                      </button>
+                    </form>
                     <button
                       type="button"
                       onClick={() => setDepositModalOpen(false)}
