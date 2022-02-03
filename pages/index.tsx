@@ -80,7 +80,7 @@ const Home: NextPage = () => {
       return;
     }
     const amountSent = 1;
-    toast(`Sent ${amountSent} TCO2-VCS-439-2008 to ${wallet}`, toastOptions);
+    toast(`Sent ${amountSent} TCO2-VCS-439-2008 to you.`, toastOptions);
   };
 
   useEffect(() => {
