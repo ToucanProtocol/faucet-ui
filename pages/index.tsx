@@ -423,7 +423,7 @@ const Home: NextPage = () => {
                         <p className="text-sm text-gray-500">
                           Thank you so much for wanting to deposit Mumbai TCO2
                           so other people can enjoy using it in their test apps.
-                          You're awesome!
+                          You are awesome!
                         </p>
                       </div>
                     </div>
