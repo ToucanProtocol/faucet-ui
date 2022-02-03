@@ -33,7 +33,7 @@ const toastOptions: ToastOptions = {
 
 const Home: NextPage = () => {
   const tco2Balance = 1232341;
-  const [formAddress, setFormAddress] = useState<string>("");
+  const [wallet, setWallet] = useState<string | null>(null);
   const connectWallet = () => {
     throw new Error("Function not implemented.");
   };
@@ -44,7 +44,12 @@ const Home: NextPage = () => {
     throw new Error("Function not implemented.");
   };
   const withdrawTCO2 = () => {
-    toast(`${formAddress}`, toastOptions);
+    if (!wallet) {
+      toast.warn("Connect your wallet first", toastOptions);
+      return;
+    }
+    const amountSent = 1;
+    toast(`Sent ${amountSent} TCO2-VCS-439-2008 to ${wallet}`, toastOptions);
   };
 
   return (
@@ -186,23 +191,6 @@ const Home: NextPage = () => {
                           <p>
                             There are {tco2Balance} TCO2 coins left. Get some!
                           </p>
-
-                          <div>
-                            <label htmlFor="wallet-address">
-                              Paste Your Wallet Address
-                            </label>
-                            <input
-                              onChange={(e) => setFormAddress(e.target.value)}
-                              value={formAddress}
-                              type="text"
-                              name="wallet-address"
-                              id="wallet-address"
-                              autoComplete="wallet-address"
-                              placeholder="Wallet Address"
-                              required
-                              className="block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
-                            />
-                          </div>
 
                           <div>
                             <button
