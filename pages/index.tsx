@@ -219,9 +219,8 @@ const Home: NextPage = () => {
                       </span>
                     </h1>
                     <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                      You don't need to connect your wallet if all you want to
-                      do is withdraw from the faucet. Simply paste your address
-                      in.
+                      Connect your wallet and get some test TCO2 sent to your
+                      Mumbai wallet. Please know that there is a 30s timeout.
                     </p>
                   </div>
                 </div>
