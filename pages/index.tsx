@@ -188,7 +188,7 @@ const Home: NextPage = () => {
                           </p>
 
                           <div>
-                            <label htmlFor="name">
+                            <label htmlFor="wallet-address">
                               Paste Your Wallet Address
                             </label>
                             <input
