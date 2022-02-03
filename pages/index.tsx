@@ -1,13 +1,14 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { ChevronRightIcon } from "@heroicons/react/solid";
 import Link from "next/link";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastOptions } from "react-toastify";
+import { ethers } from "ethers";
 
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
@@ -34,9 +35,39 @@ const toastOptions: ToastOptions = {
 const Home: NextPage = () => {
   const tco2Balance = 1232341;
   const [wallet, setWallet] = useState<string | null>(null);
-  const connectWallet = () => {
-    throw new Error("Function not implemented.");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const connectWallet = async () => {
+    console.log("attempting to connect to the MetaMask wallet");
+    try {
+      setLoading(true);
+
+      // @ts-ignore
+      const { ethereum } = window;
+      if (!ethereum) {
+        throw new Error("MetaMask not connected");
+      }
+
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const { chainId } = await provider.getNetwork();
+      // TODO change when deploy on another network
+      if (chainId != 80001) {
+        throw new Error("Make sure you are on Mumbai Test Network.");
+      }
+
+      const accounts = await ethereum.request({
+        method: "eth_requestAccounts",
+      });
+
+      setWallet(accounts[0]);
+    } catch (error: any) {
+      console.error("error when connecting wallet", error);
+      toast.error(error.message, toastOptions);
+    } finally {
+      setLoading(false);
+    }
   };
+
   const getBalance = () => {
     throw new Error("Function not implemented.");
   };
@@ -51,6 +82,13 @@ const Home: NextPage = () => {
     const amountSent = 1;
     toast(`Sent ${amountSent} TCO2-VCS-439-2008 to ${wallet}`, toastOptions);
   };
+
+  useEffect(() => {
+    if (wallet) {
+      console.log("wallet", wallet);
+      toast.success(`Your wallet is connected.`, toastOptions);
+    }
+  }, [wallet]);
 
   return (
     <div>
