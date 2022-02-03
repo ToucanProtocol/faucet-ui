@@ -75,13 +75,20 @@ const Home: NextPage = () => {
   const depositTCO2 = () => {
     throw new Error("Function not implemented.");
   };
+
   const withdrawTCO2 = () => {
-    if (!wallet) {
-      toast.warn("Connect your wallet first", toastOptions);
-      return;
+    try {
+      if (!wallet) {
+        throw new Error("Connect your wallet first.");
+      }
+      const amountSent = 1;
+      toast(`🌳 Sent ${amountSent} TCO2-VCS-439-2008 to you.`, toastOptions);
+    } catch (error: any) {
+      console.error("Error when withdrawing TCO2", error);
+      toast.error(error.message, toastOptions);
+    } finally {
+      setLoading(false);
     }
-    const amountSent = 1;
-    toast(`🌳 Sent ${amountSent} TCO2-VCS-439-2008 to you.`, toastOptions);
   };
 
   useEffect(() => {
