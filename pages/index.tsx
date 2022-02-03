@@ -41,6 +41,7 @@ const tco2Address =
 
 export async function getStaticProps() {
   try {
+    // TODO add env variables
     const provider = new ethers.providers.JsonRpcProvider(
       process.env.INFURA_MUMBAY_URL,
       80001
