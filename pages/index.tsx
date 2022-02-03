@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastOptions } from "react-toastify";
 import { ethers } from "ethers";
 import { Loader } from "../components/Loader";
+import * as faucetAbi from "../utils/TCO2Faucet.json";
 
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
@@ -46,7 +47,7 @@ const Home: NextPage = () => {
       // @ts-ignore
       const { ethereum } = window;
       if (!ethereum) {
-        throw new Error("MetaMask not connected");
+        throw new Error("You need Metamask.");
       }
 
       const provider = new ethers.providers.Web3Provider(ethereum);
@@ -76,13 +77,39 @@ const Home: NextPage = () => {
     throw new Error("Function not implemented.");
   };
 
-  const withdrawTCO2 = () => {
+  const withdrawTCO2 = async () => {
     try {
       if (!wallet) {
         throw new Error("Connect your wallet first.");
       }
-      const amountSent = 1;
-      toast(`🌳 Sent ${amountSent} TCO2-VCS-439-2008 to you.`, toastOptions);
+      setLoading(true);
+
+      const amountToSend = "2.0";
+      const faucetAddress = "0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84";
+      const tco2Address = "0xa5831eb637dff307395b5183c86b04c69c518681";
+
+      // @ts-ignore
+      const { ethereum } = window;
+      if (!ethereum) {
+        throw new Error("You need Metamask.");
+      }
+
+      const provider = new ethers.providers.Web3Provider(ethereum);
+      const signer = provider.getSigner();
+      const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
+
+      const withdrawTxn = await faucet.withdraw(
+        tco2Address,
+        ethers.utils.parseEther(amountToSend),
+        {
+          gasLimit: 1200000,
+        }
+      );
+      await withdrawTxn.wait();
+
+      // TODO check txn success
+
+      toast(`🌳 Sent ${amountToSend} TCO2-VCS-439-2008 to you.`, toastOptions);
     } catch (error: any) {
       console.error("Error when withdrawing TCO2", error);
       toast.error(error.message, toastOptions);
