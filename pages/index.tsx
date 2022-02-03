@@ -187,7 +187,9 @@ const Home: NextPage = () => {
   }, [wallet]);
 
   useEffect(() => {
-    fetchBalance();
+    if (wallet) {
+      fetchBalance();
+    }
   }, []);
 
   return (
