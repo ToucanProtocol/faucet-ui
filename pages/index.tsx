@@ -73,6 +73,7 @@ const Home: NextPage = () => {
   const getBalance = () => {
     throw new Error("Function not implemented.");
   };
+
   const depositTCO2 = () => {
     throw new Error("Function not implemented.");
   };
@@ -176,7 +177,11 @@ const Home: NextPage = () => {
               <div className="hidden md:flex">
                 {/* if the wallet exists don't render anything, if yes render a wallet connection btn */}
                 {wallet ? (
-                  ""
+                  <Link href="/deposit">
+                    <a className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700">
+                      Deposit TCO2
+                    </a>
+                  </Link>
                 ) : (
                   <button
                     onClick={() => {
@@ -226,7 +231,11 @@ const Home: NextPage = () => {
                   </div>
                   {/* if the wallet exists don't render anything, if yes render a wallet connection btn */}
                   {wallet ? (
-                    ""
+                    <Link href="deposit">
+                      <a className="block w-full px-5 py-3 text-center font-medium text-indigo-600 bg-gray-50 hover:bg-gray-100">
+                        Deposit TCO2
+                      </a>
+                    </Link>
                   ) : (
                     <button
                       onClick={() => {
