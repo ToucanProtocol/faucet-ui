@@ -34,15 +34,50 @@ const toastOptions: ToastOptions = {
   progress: undefined,
 };
 
-const faucetAddress = "0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84";
-const tco2Address = "0xa5831eb637dff307395b5183c86b04c69c518681";
+const faucetAddress =
+  process.env.FAUCET_ADDRESS || "0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84";
+const tco2Address =
+  process.env.TCO2ADDRESS || "0xa5831eb637dff307395b5183c86b04c69c518681";
 
-const Home: NextPage = () => {
+export async function getStaticProps() {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      process.env.INFURA_MUMBAY_URL,
+      80001
+    );
+    let wallet = new ethers.Wallet(
+      process.env.MUMBAY_PRIVATE_KEY || "",
+      provider
+    );
+    const signer = provider.getSigner(process.env.OWNER_ADDRESS_MUMBAI);
+    wallet = wallet.connect(provider);
+
+    const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
+
+    const balanceTxn = await faucet.getTokenBalance(tco2Address, {
+      gasLimit: 1200000,
+    });
+    const staticBalance = ethers.utils.formatEther(balanceTxn);
+    return {
+      props: { staticBalance },
+      revalidate: 60 * 60 * 24 * 3, // that's 3 days
+    };
+  } catch (error: any) {
+    const staticBalance = "NaN";
+    console.error("error when fetching TCO2 balance of the faucet", error);
+    return {
+      props: { staticBalance },
+      revalidate: 60 * 60 * 24 * 3, // that's 3 days
+    };
+  }
+}
+
+const Home: NextPage = ({ staticBalance }: any) => {
   const [wallet, setWallet] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [amountToDeposit, setAmountToDeposit] = useState<string>("1.0");
-  const [balance, setBalance] = useState<string>("0");
+  const [balance, setBalance] = useState<string>(staticBalance);
 
   const connectWallet = async () => {
     try {
@@ -70,6 +105,7 @@ const Home: NextPage = () => {
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
+      fetchBalance();
     }
   };
 
