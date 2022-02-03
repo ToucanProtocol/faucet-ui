@@ -45,7 +45,6 @@ const Home: NextPage = () => {
   const [balance, setBalance] = useState<string>("0");
 
   const connectWallet = async () => {
-    console.log("attempting to connect to the MetaMask wallet");
     try {
       setLoading(true);
 
@@ -57,7 +56,6 @@ const Home: NextPage = () => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const { chainId } = await provider.getNetwork();
-      // TODO change when deploy on another network
       if (chainId != 80001) {
         throw new Error("Make sure you are on Mumbai Test Network.");
       }
@@ -75,7 +73,7 @@ const Home: NextPage = () => {
     }
   };
 
-  const getBalance = async () => {
+  const fetchBalance = async () => {
     try {
       setLoading(true);
 
@@ -93,7 +91,6 @@ const Home: NextPage = () => {
         gasLimit: 1200000,
       });
       setBalance(ethers.utils.formatEther(balanceTxn));
-      // TODO doesn't refresh when done
     } catch (error: any) {
       console.error("error when fetching TCO2 balance of the faucet", error);
       toast.error(error.message, toastOptions);
@@ -138,6 +135,7 @@ const Home: NextPage = () => {
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
+      fetchBalance();
     }
   };
 
@@ -178,19 +176,19 @@ const Home: NextPage = () => {
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
+      fetchBalance();
     }
   };
 
   useEffect(() => {
     if (wallet) {
-      console.log("wallet", wallet);
       toast.success(`Your wallet is connected.`, toastOptions);
     }
   }, [wallet]);
 
   useEffect(() => {
-    getBalance();
-  }, [balance]);
+    fetchBalance();
+  }, []);
 
   return (
     <div>
