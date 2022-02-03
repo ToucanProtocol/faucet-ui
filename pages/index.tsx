@@ -177,6 +177,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
   };
 
   const withdrawTCO2 = async () => {
+    // TODO implement timeout messaging / error handling
     try {
       if (!wallet) {
         throw new Error("Connect your wallet first.");
