@@ -13,7 +13,7 @@ import { ethers } from "ethers";
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
   {
-    name: "Contract Polygonscan",
+    name: "Faucet Polygonscan",
     href: "https://mumbai.polygonscan.com/address/0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84",
   },
   {
