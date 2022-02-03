@@ -9,6 +9,7 @@ import Link from "next/link";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastOptions } from "react-toastify";
 import { ethers } from "ethers";
+import { Loader } from "../components/Loader";
 
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
@@ -89,6 +90,8 @@ const Home: NextPage = () => {
       toast.success(`Your wallet is connected.`, toastOptions);
     }
   }, [wallet]);
+
+  if (loading) return <Loader />;
 
   return (
     <div>
