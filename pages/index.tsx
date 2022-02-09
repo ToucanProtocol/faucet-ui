@@ -42,40 +42,6 @@ const TCO2_VCS_439_2008: string = "0xa5831eb637dff307395b5183c86b04c69c518681";
 const TCO2_VCS_1190_2018: string = "0xD3Ad9Dc261CA44b153125541D66Af2CF372C316a";
 const TCO2_VCS_674_2014: string = "0xF7e61e0084287890E35e46dc7e077d7E5870Ae27";
 
-export async function getStaticProps() {
-  try {
-    // TODO add env variables
-    const provider = new ethers.providers.JsonRpcProvider(
-      process.env.INFURA_MUMBAY_URL,
-      80001
-    );
-    let wallet = new ethers.Wallet(
-      process.env.MUMBAY_PRIVATE_KEY || "",
-      provider
-    );
-    const signer = provider.getSigner(process.env.OWNER_ADDRESS_MUMBAI);
-    wallet = wallet.connect(provider);
-
-    const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
-
-    const balanceTxn = await faucet.getTokenBalance(tco2Address, {
-      gasLimit: 1200000,
-    });
-    const staticBalance = ethers.utils.formatEther(balanceTxn);
-    return {
-      props: { staticBalance },
-      revalidate: 60 * 60 * 24 * 3, // that's 3 days
-    };
-  } catch (error: any) {
-    const staticBalance = "NaN";
-    console.error("error when fetching TCO2 balance of the faucet", error);
-    return {
-      props: { staticBalance },
-      revalidate: 60 * 60 * 24 * 3, // that's 3 days
-    };
-  }
-}
-
 const Home: NextPage = ({ staticBalance }: any) => {
   const [wallet, setWallet] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -540,3 +506,37 @@ const Home: NextPage = ({ staticBalance }: any) => {
 };
 
 export default Home;
+
+export async function getStaticProps() {
+  try {
+    // TODO add env variables
+    const provider = new ethers.providers.JsonRpcProvider(
+      process.env.INFURA_MUMBAY_URL,
+      80001
+    );
+    let wallet = new ethers.Wallet(
+      process.env.MUMBAY_PRIVATE_KEY || "",
+      provider
+    );
+    const signer = provider.getSigner(process.env.OWNER_ADDRESS_MUMBAI);
+    wallet = wallet.connect(provider);
+
+    const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
+
+    const balanceTxn = await faucet.getTokenBalance(tco2Address, {
+      gasLimit: 1200000,
+    });
+    const staticBalance = ethers.utils.formatEther(balanceTxn);
+    return {
+      props: { staticBalance },
+      revalidate: 60 * 60 * 24 * 3, // that's 3 days
+    };
+  } catch (error: any) {
+    const staticBalance = "NaN";
+    console.error("error when fetching TCO2 balance of the faucet", error);
+    return {
+      props: { staticBalance },
+      revalidate: 60 * 60 * 24 * 3, // that's 3 days
+    };
+  }
+}
