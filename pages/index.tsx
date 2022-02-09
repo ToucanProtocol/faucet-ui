@@ -133,7 +133,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
     }
   };
 
-  const depositTCO2 = async () => {
+  const depositTCO2 = async (tco2Address: string) => {
     try {
       setLoading(true);
 
@@ -169,11 +169,11 @@ const Home: NextPage = ({ staticBalance }: any) => {
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
-      fetchBalance();
+      fetchBalances();
     }
   };
 
-  const withdrawTCO2 = async () => {
+  const withdrawTCO2 = async (tco2Address: string) => {
     // TODO implement timeout messaging / error handling
     try {
       if (!wallet) {
@@ -211,7 +211,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
-      fetchBalance();
+      fetchBalances();
     }
   };
 
@@ -223,7 +223,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
 
   useEffect(() => {
     if (wallet) {
-      fetchBalance();
+      fetchBalances();
     }
   }, []);
 
