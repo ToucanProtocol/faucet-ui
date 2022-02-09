@@ -615,37 +615,3 @@ const Home: NextPage = ({ staticBalance }: any) => {
 };
 
 export default Home;
-
-export async function getStaticProps() {
-  try {
-    // TODO add env variables
-    const provider = new ethers.providers.JsonRpcProvider(
-      process.env.INFURA_MUMBAY_URL,
-      80001
-    );
-    let wallet = new ethers.Wallet(
-      process.env.MUMBAY_PRIVATE_KEY || "",
-      provider
-    );
-    const signer = provider.getSigner(process.env.OWNER_ADDRESS_MUMBAI);
-    wallet = wallet.connect(provider);
-
-    const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
-
-    const balanceTxn = await faucet.getTokenBalance(tco2Address, {
-      gasLimit: 1200000,
-    });
-    const staticBalance = ethers.utils.formatEther(balanceTxn);
-    return {
-      props: { staticBalance },
-      revalidate: 60 * 60 * 24 * 3, // that's 3 days
-    };
-  } catch (error: any) {
-    const staticBalance = "NaN";
-    console.error("error when fetching TCO2 balance of the faucet", error);
-    return {
-      props: { staticBalance },
-      revalidate: 60 * 60 * 24 * 3, // that's 3 days
-    };
-  }
-}
