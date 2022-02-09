@@ -38,8 +38,9 @@ const oldFaucetAddress =
   process.env.FAUCET_ADDRESS || "0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84";
 const newFaucetAddress =
   process.env.FUCET_ADDRESS || "0x6Db062431573e55D822C5437C278D115E85Ca7DD"; // this one can use multiple TCO2s
-const TCO2_VCS_439_2008 =
-  process.env.TCO2ADDRESS || "0xa5831eb637dff307395b5183c86b04c69c518681";
+const TCO2_VCS_439_2008: string = "0xa5831eb637dff307395b5183c86b04c69c518681";
+const TCO2_VCS_1190_2018: string = "0xD3Ad9Dc261CA44b153125541D66Af2CF372C316a";
+const TCO2_VCS_674_2014: string = "0xF7e61e0084287890E35e46dc7e077d7E5870Ae27";
 
 export async function getStaticProps() {
   try {
