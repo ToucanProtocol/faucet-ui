@@ -16,11 +16,7 @@ const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
   {
     name: "Faucet Polygonscan",
-    href: "https://mumbai.polygonscan.com/address/0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84",
-  },
-  {
-    name: "TCO2-VCS-439-2008",
-    href: "https://mumbai.polygonscan.com/token/0xa5831eb637dff307395b5183c86b04c69c518681",
+    href: "https://mumbai.polygonscan.com/address/0x6Db062431573e55D822C5437C278D115E85Ca7DD",
   },
 ];
 
@@ -36,11 +32,14 @@ const toastOptions: ToastOptions = {
 
 const oldFaucetAddress =
   process.env.FAUCET_ADDRESS || "0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84";
-const newFaucetAddress =
+const faucetAddress =
   process.env.FUCET_ADDRESS || "0x6Db062431573e55D822C5437C278D115E85Ca7DD"; // this one can use multiple TCO2s
-const TCO2_VCS_439_2008: string = "0xa5831eb637dff307395b5183c86b04c69c518681";
-const TCO2_VCS_1190_2018: string = "0xD3Ad9Dc261CA44b153125541D66Af2CF372C316a";
-const TCO2_VCS_674_2014: string = "0xF7e61e0084287890E35e46dc7e077d7E5870Ae27";
+
+interface ifcTCO2 {
+  name: string;
+  address: string;
+  amount: string | "NaN";
+}
 
 const Home: NextPage = ({ staticBalance }: any) => {
   const [wallet, setWallet] = useState<string | null>(null);
@@ -48,6 +47,23 @@ const Home: NextPage = ({ staticBalance }: any) => {
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [amountToDeposit, setAmountToDeposit] = useState<string>("1.0");
   const [balance, setBalance] = useState<string>(staticBalance);
+  const [TCO2s, setTCO2s] = useState<ifcTCO2[]>([
+    {
+      name: "TCO2_VCS_439_2008",
+      address: "0xa5831eb637dff307395b5183c86b04c69c518681",
+      amount: "NaN",
+    },
+    {
+      name: "TCO2_VCS_1190_2018",
+      address: "0xD3Ad9Dc261CA44b153125541D66Af2CF372C316a",
+      amount: "NaN",
+    },
+    {
+      name: "TCO2_VCS_674_2014",
+      address: "0xF7e61e0084287890E35e46dc7e077d7E5870Ae27",
+      amount: "NaN",
+    },
+  ]);
 
   const connectWallet = async () => {
     try {
@@ -75,11 +91,13 @@ const Home: NextPage = ({ staticBalance }: any) => {
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
-      fetchBalance();
+      if (wallet) {
+        fetchBalances();
+      }
     }
   };
 
-  const fetchBalance = async () => {
+  const fetchBalances = async () => {
     try {
       setLoading(true);
 
@@ -93,10 +111,20 @@ const Home: NextPage = ({ staticBalance }: any) => {
       const signer = provider.getSigner();
       const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
 
-      const balanceTxn = await faucet.getTokenBalance(tco2Address, {
-        gasLimit: 1200000,
-      });
-      setBalance(ethers.utils.formatEther(balanceTxn));
+      const newTCO2s = await Promise.all(
+        TCO2s.map(async (tco2): Promise<ifcTCO2> => {
+          const balanceTxn = await faucet.getTokenBalance(tco2.address, {
+            gasLimit: 1200000,
+          });
+          balanceTxn.wait();
+          return {
+            name: tco2.name,
+            address: tco2.address,
+            amount: ethers.utils.formatEther(balanceTxn),
+          };
+        })
+      );
+      setTCO2s(newTCO2s);
     } catch (error: any) {
       console.error("error when fetching TCO2 balance of the faucet", error);
       toast.error(error.message, toastOptions);
