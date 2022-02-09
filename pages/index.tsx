@@ -18,6 +18,10 @@ const navigation = [
     name: "Faucet Polygonscan",
     href: "https://mumbai.polygonscan.com/address/0x6Db062431573e55D822C5437C278D115E85Ca7DD",
   },
+  {
+    name: "UI Repo",
+    href: "https://github.com/lazaralex98/TCO2-Faucet-UI",
+  },
 ];
 
 const toastOptions: ToastOptions = {
