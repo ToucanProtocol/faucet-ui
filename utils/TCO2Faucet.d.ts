@@ -21,37 +21,45 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface TCO2FaucetInterface extends ethers.utils.Interface {
   functions: {
-    "checkEligible(address)": FunctionFragment;
     "checkIfWithdrawalTimeout()": FunctionFragment;
+    "contractRegistry()": FunctionFragment;
     "deposit(address,uint256)": FunctionFragment;
-    "footprint()": FunctionFragment;
     "getTokenBalance(address)": FunctionFragment;
     "owner()": FunctionFragment;
-    "tco2Address()": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
+    "setToucanContractRegistry(address)": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
     "withdraw(address,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "checkEligible",
-    values: [string]
+    functionFragment: "checkIfWithdrawalTimeout",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "checkIfWithdrawalTimeout",
+    functionFragment: "contractRegistry",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "deposit",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "footprint", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getTokenBalance",
     values: [string]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "tco2Address",
+    functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setToucanContractRegistry",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "withdraw",
@@ -59,37 +67,50 @@ interface TCO2FaucetInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "checkEligible",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "checkIfWithdrawalTimeout",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractRegistry",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "footprint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getTokenBalance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "tco2Address",
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setToucanContractRegistry",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
     "Deposited(address,uint256)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
     "Withdrawn(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Deposited"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Withdrawn"): EventFragment;
 }
 
 export type DepositedEvent = TypedEvent<
   [string, BigNumber] & { erc20Addr: string; amount: BigNumber }
+>;
+
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string] & { previousOwner: string; newOwner: string }
 >;
 
 export type WithdrawnEvent = TypedEvent<
@@ -144,22 +165,17 @@ export class TCO2Faucet extends BaseContract {
   interface: TCO2FaucetInterface;
 
   functions: {
-    checkEligible(
-      _erc20Address: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     checkIfWithdrawalTimeout(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    contractRegistry(overrides?: CallOverrides): Promise<[string]>;
 
     deposit(
       _erc20Address: string,
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    footprint(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getTokenBalance(
       _erc20Address: string,
@@ -168,7 +184,19 @@ export class TCO2Faucet extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    tco2Address(overrides?: CallOverrides): Promise<[string]>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setToucanContractRegistry(
+      _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     withdraw(
       _erc20Address: string,
@@ -177,22 +205,17 @@ export class TCO2Faucet extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  checkEligible(
-    _erc20Address: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   checkIfWithdrawalTimeout(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  contractRegistry(overrides?: CallOverrides): Promise<string>;
 
   deposit(
     _erc20Address: string,
     _amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  footprint(overrides?: CallOverrides): Promise<BigNumber>;
 
   getTokenBalance(
     _erc20Address: string,
@@ -201,7 +224,19 @@ export class TCO2Faucet extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  tco2Address(overrides?: CallOverrides): Promise<string>;
+  renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setToucanContractRegistry(
+    _address: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  transferOwnership(
+    newOwner: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   withdraw(
     _erc20Address: string,
@@ -210,20 +245,15 @@ export class TCO2Faucet extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    checkEligible(
-      _erc20Address: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     checkIfWithdrawalTimeout(overrides?: CallOverrides): Promise<boolean>;
+
+    contractRegistry(overrides?: CallOverrides): Promise<string>;
 
     deposit(
       _erc20Address: string,
       _amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    footprint(overrides?: CallOverrides): Promise<BigNumber>;
 
     getTokenBalance(
       _erc20Address: string,
@@ -232,7 +262,17 @@ export class TCO2Faucet extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    tco2Address(overrides?: CallOverrides): Promise<string>;
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    setToucanContractRegistry(
+      _address: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     withdraw(
       _erc20Address: string,
@@ -258,6 +298,22 @@ export class TCO2Faucet extends BaseContract {
       { erc20Addr: string; amount: BigNumber }
     >;
 
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    OwnershipTransferred(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
     "Withdrawn(address,address,uint256)"(
       account?: null,
       erc20Addr?: null,
@@ -278,22 +334,17 @@ export class TCO2Faucet extends BaseContract {
   };
 
   estimateGas: {
-    checkEligible(
-      _erc20Address: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     checkIfWithdrawalTimeout(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    contractRegistry(overrides?: CallOverrides): Promise<BigNumber>;
 
     deposit(
       _erc20Address: string,
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    footprint(overrides?: CallOverrides): Promise<BigNumber>;
 
     getTokenBalance(
       _erc20Address: string,
@@ -302,7 +353,19 @@ export class TCO2Faucet extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    tco2Address(overrides?: CallOverrides): Promise<BigNumber>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setToucanContractRegistry(
+      _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     withdraw(
       _erc20Address: string,
@@ -312,22 +375,17 @@ export class TCO2Faucet extends BaseContract {
   };
 
   populateTransaction: {
-    checkEligible(
-      _erc20Address: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     checkIfWithdrawalTimeout(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    contractRegistry(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     deposit(
       _erc20Address: string,
       _amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    footprint(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getTokenBalance(
       _erc20Address: string,
@@ -336,7 +394,19 @@ export class TCO2Faucet extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    tco2Address(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setToucanContractRegistry(
+      _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     withdraw(
       _erc20Address: string,
