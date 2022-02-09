@@ -34,9 +34,11 @@ const toastOptions: ToastOptions = {
   progress: undefined,
 };
 
-const faucetAddress =
+const oldFaucetAddress =
   process.env.FAUCET_ADDRESS || "0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84";
-const tco2Address =
+const newFaucetAddress =
+  process.env.FUCET_ADDRESS || "0x6Db062431573e55D822C5437C278D115E85Ca7DD"; // this one can use multiple TCO2s
+const TCO2_VCS_439_2008 =
   process.env.TCO2ADDRESS || "0xa5831eb637dff307395b5183c86b04c69c518681";
 
 export async function getStaticProps() {
