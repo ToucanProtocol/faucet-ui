@@ -33,7 +33,7 @@ const toastOptions: ToastOptions = {
 const oldFaucetAddress =
   process.env.FAUCET_ADDRESS || "0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84";
 const faucetAddress =
-  process.env.FUCET_ADDRESS || "0x6Db062431573e55D822C5437C278D115E85Ca7DD"; // this one can use multiple TCO2s
+  process.env.FUCET_ADDRESS || "0x2797489A57713C62227EfBF56D49E15613Ab60E8"; // this one can use multiple TCO2s
 
 interface ifcTCO2 {
   name: string;
@@ -46,7 +46,6 @@ const Home: NextPage = ({ staticBalance }: any) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [amountToDeposit, setAmountToDeposit] = useState<string>("1.0");
-  const [balance, setBalance] = useState<string>(staticBalance);
   const [TCO2ToDeposit, setTCO2ToDeposit] = useState<string>(
     "0xa5831eb637dff307395b5183c86b04c69c518681"
   );
@@ -94,9 +93,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
-      if (wallet) {
-        fetchBalances();
-      }
+      fetchBalances();
     }
   };
 
@@ -119,7 +116,6 @@ const Home: NextPage = ({ staticBalance }: any) => {
           const balanceTxn = await faucet.getTokenBalance(tco2.address, {
             gasLimit: 1200000,
           });
-          balanceTxn.wait();
           return {
             name: tco2.name,
             address: tco2.address,
@@ -165,6 +161,8 @@ const Home: NextPage = ({ staticBalance }: any) => {
         }
       );
       await depositTxn.wait();
+
+      console.log("deposit hash", depositTxn.hash);
 
       toast(`You deposited ${amountToDeposit}`, toastOptions);
     } catch (error: any) {
@@ -383,32 +381,91 @@ const Home: NextPage = ({ staticBalance }: any) => {
                 </div>
                 <div className="mt-16 sm:mt-24 lg:mt-0 lg:col-span-6">
                   <div className="bg-white sm:max-w-md sm:w-full sm:mx-auto sm:rounded-lg sm:overflow-hidden">
-                    <div className="px-4 py-8 sm:px-10">
-                      <div className="mt-6">
-                        <form
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            withdrawTCO2();
-                          }}
-                          className="space-y-6"
-                        >
-                          {balance == "NaN" ? (
-                            <p>Get some TCO2 coins</p>
-                          ) : (
-                            <p>
-                              There are {balance} TCO2 coins left. Get some!
-                            </p>
-                          )}
-
-                          <div>
-                            <button
-                              type="submit"
-                              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                              Get TCO2
-                            </button>
+                    <div className="flex flex-col">
+                      <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                          <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table className="min-w-full divide-y divide-gray-200">
+                              <thead className="bg-gray-50">
+                                <tr>
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
+                                    Name
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
+                                    {wallet
+                                      ? "Amount"
+                                      : "Connect wallet to see balances"}
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="relative px-6 py-3"
+                                  >
+                                    <span className="sr-only">Withdraw</span>
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {TCO2s.map((tco2, index) => (
+                                  <tr
+                                    key={tco2.address}
+                                    className={
+                                      index % 2 === 0
+                                        ? "bg-white"
+                                        : "bg-gray-50"
+                                    }
+                                  >
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                      {tco2.name}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                      {tco2.amount}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                      <span
+                                        onClick={() => {
+                                          withdrawTCO2(tco2.address);
+                                        }}
+                                        className="cursor-pointer text-indigo-600 hover:text-indigo-900"
+                                      >
+                                        Withdraw
+                                      </span>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                              <tfoot className="bg-gray-50">
+                                <tr>
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
+                                    Name
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                  >
+                                    {wallet
+                                      ? "Amount"
+                                      : "Connect wallet to see balances"}
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="relative px-6 py-3"
+                                  >
+                                    <span className="sr-only">Withdraw</span>
+                                  </th>
+                                </tr>
+                              </tfoot>
+                            </table>
                           </div>
-                        </form>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -478,8 +535,6 @@ const Home: NextPage = ({ staticBalance }: any) => {
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
-                        console.log("type", TCO2ToDeposit);
-                        console.log("amount", amountToDeposit);
                         depositTCO2();
                       }}
                     >
