@@ -47,6 +47,9 @@ const Home: NextPage = ({ staticBalance }: any) => {
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [amountToDeposit, setAmountToDeposit] = useState<string>("1.0");
   const [balance, setBalance] = useState<string>(staticBalance);
+  const [TCO2ToDeposit, setTCO2ToDeposit] = useState<string>(
+    "0xa5831eb637dff307395b5183c86b04c69c518681"
+  );
   const [TCO2s, setTCO2s] = useState<ifcTCO2[]>([
     {
       name: "TCO2_VCS_439_2008",
@@ -133,7 +136,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
     }
   };
 
-  const depositTCO2 = async (tco2Address: string) => {
+  const depositTCO2 = async () => {
     try {
       setLoading(true);
 
@@ -145,7 +148,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
-      const tco = new ethers.Contract(tco2Address, tcoAbi.abi, signer);
+      const tco = new ethers.Contract(TCO2ToDeposit, tcoAbi.abi, signer);
       const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
 
       await tco.approve(
@@ -155,7 +158,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
 
       // we then deposit the amount of TCO2 into the faucet contract
       const depositTxn = await faucet.deposit(
-        tco2Address,
+        TCO2ToDeposit,
         ethers.utils.parseEther(amountToDeposit),
         {
           gasLimit: 1200000,
@@ -460,7 +463,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
                         as="h3"
                         className="text-lg leading-6 font-medium text-gray-900"
                       >
-                        Deposit TCO2-VCS-439-2008
+                        Deposit TCO2
                       </Dialog.Title>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
@@ -475,10 +478,34 @@ const Home: NextPage = ({ staticBalance }: any) => {
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
+                        console.log("type", TCO2ToDeposit);
+                        console.log("amount", amountToDeposit);
                         depositTCO2();
                       }}
                     >
                       <div>
+                        <label
+                          htmlFor="location"
+                          className="block text-sm font-medium text-gray-700"
+                        >
+                          TCO2 Type
+                        </label>
+                        <select
+                          onChange={(e) => setTCO2ToDeposit(e.target.value)}
+                          id="TCO2Type"
+                          name="TCO2Type"
+                          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                        >
+                          {TCO2s.map((tco2) => {
+                            return (
+                              <option key={tco2.name} value={tco2.address}>
+                                {tco2.name}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+                      <div className="mt-3">
                         <label
                           htmlFor="price"
                           className="block text-sm font-medium text-gray-700"
@@ -506,8 +533,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
                         </div>
                       </div>
                       <button
-                        type="button"
-                        onClick={() => depositTCO2()}
+                        type="submit"
                         className="mt-3 inline-flex items-center w-full justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
                         Deposit TCO2
