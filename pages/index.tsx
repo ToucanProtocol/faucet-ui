@@ -134,6 +134,9 @@ const Home: NextPage = ({ staticBalance }: any) => {
 
   const depositTCO2 = async () => {
     try {
+      if (!wallet) {
+        throw new Error("Connect your wallet first.");
+      }
       setLoading(true);
 
       // @ts-ignore
@@ -164,7 +167,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
 
       console.log("deposit hash", depositTxn.hash);
 
-      toast(`You deposited ${amountToDeposit}`, toastOptions);
+      toast(`You deposited ${amountToDeposit} TCO2s`, toastOptions);
     } catch (error: any) {
       console.error("error when depositing TCO2", error);
       toast.error(error.message, toastOptions);
@@ -281,14 +284,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
               <div className="hidden md:flex">
                 {/* if the wallet exists don't render anything, if yes render a wallet connection btn */}
                 {wallet ? (
-                  <button
-                    onClick={() => {
-                      setDepositModalOpen(true);
-                    }}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700"
-                  >
-                    Deposit TCO2
-                  </button>
+                  ""
                 ) : (
                   <button
                     onClick={() => {
@@ -338,14 +334,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
                   </div>
                   {/* if the wallet exists don't render anything, if yes render a wallet connection btn */}
                   {wallet ? (
-                    <button
-                      onClick={() => {
-                        setDepositModalOpen(true);
-                      }}
-                      className="block w-full px-5 py-3 text-center font-medium text-indigo-600 bg-gray-50 hover:bg-gray-100"
-                    >
-                      Deposit TCO2
-                    </button>
+                    ""
                   ) : (
                     <button
                       onClick={() => {
@@ -427,14 +416,15 @@ const Home: NextPage = ({ staticBalance }: any) => {
                                       {tco2.amount}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                      <span
+                                      <button
                                         onClick={() => {
                                           withdrawTCO2(tco2.address);
                                         }}
-                                        className="cursor-pointer text-indigo-600 hover:text-indigo-900"
+                                        type="button"
+                                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                       >
-                                        Withdraw
-                                      </span>
+                                        Get TCO2
+                                      </button>
                                     </td>
                                   </tr>
                                 ))}
@@ -475,6 +465,22 @@ const Home: NextPage = ({ staticBalance }: any) => {
           </main>
         </div>
       </div>
+      <footer className="bg-white">
+        <div className="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
+          <p className="mt-8 text-center text-base text-gray-400">
+            Want to{" "}
+            <span
+              onClick={() => {
+                setDepositModalOpen(true);
+              }}
+              className="cursor-pointer text-indigo-600 hover:text-indigo-900"
+            >
+              deposit TCO2
+            </span>
+            ?
+          </p>
+        </div>
+      </footer>
 
       {/* A modal with a form to deposit TCO2 */}
       {depositModalOpen ? (
