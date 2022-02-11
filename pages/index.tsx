@@ -16,7 +16,7 @@ const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
   {
     name: "Faucet Polygonscan",
-    href: "https://mumbai.polygonscan.com/address/0x6Db062431573e55D822C5437C278D115E85Ca7DD",
+    href: "https://mumbai.polygonscan.com/address/0x2797489A57713C62227EfBF56D49E15613Ab60E8",
   },
   {
     name: "UI Repo",
