@@ -11,6 +11,7 @@ import { ethers } from "ethers";
 import { Loader } from "../components/Loader";
 import * as faucetAbi from "../utils/TCO2Faucet.json";
 import * as tcoAbi from "../utils/ToucanCarbonOffsets.json";
+import Table from "../components/Table";
 
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
@@ -235,6 +236,45 @@ const Home: NextPage = ({ staticBalance }: any) => {
     }
   }, []);
 
+  const importTokenToWallet = async (tco2Address: string) => {
+    try {
+      if (!wallet) {
+        throw new Error("Connect your wallet first.");
+      }
+      setLoading(true);
+
+      // @ts-ignore
+      const { ethereum } = window;
+      if (!ethereum) {
+        throw new Error("You need Metamask.");
+      }
+
+      const tokenToBeAdded = TCO2s.filter((token) => {
+        return token.address == tco2Address;
+      });
+
+      const wasAdded = await ethereum.request({
+        method: "wallet_watchAsset",
+        params: {
+          type: "ERC20",
+          options: {
+            address: tokenToBeAdded[0].address,
+            symbol: tokenToBeAdded[0].name, // A ticker symbol or shorthand, up to 5 chars.
+            decimals: 18,
+          },
+        },
+      });
+
+      toast(
+        `Just imported ${tokenToBeAdded[0].name} to your wallet.`,
+        toastOptions
+      );
+    } catch (error: any) {
+      console.error("Error when importing token", error);
+      toast.error(error.message, toastOptions);
+    }
+  };
+
   return (
     <div>
       <Head>
@@ -354,115 +394,31 @@ const Home: NextPage = ({ staticBalance }: any) => {
             </Transition>
           </Popover>
 
-          <main className="mt-16 sm:mt-24">
+          <main className="mt-10">
             <div className="mx-auto max-w-7xl">
-              <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-                <div className="px-4 sm:px-6 sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex lg:items-center">
-                  <div>
-                    <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
-                      <span className="md:block">A simple faucet</span>{" "}
-                      <span className="text-indigo-400 md:block">
-                        for TCO2 tokens
-                      </span>
-                    </h1>
-                    <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                      Connect your wallet and get some test TCO2 sent to your
-                      Mumbai wallet. Please know that there is a 30s timeout
-                      after each request.
-                    </p>
-                  </div>
+              <div className="px-4 sm:px-6 sm:text-center md:max-w-2xl md:mx-auto lg:flex lg:items-center">
+                <div>
+                  <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
+                    <span className="md:block">A simple faucet</span>{" "}
+                    <span className="text-indigo-400 md:block">
+                      for TCO2 tokens
+                    </span>
+                  </h1>
+                  <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
+                    Connect your wallet and get some test TCO2 sent to your
+                    Mumbai wallet. Please know that there is a 30s timeout after
+                    each request.
+                  </p>
                 </div>
-                <div className="mt-16 sm:mt-24 lg:mt-0 lg:col-span-6">
-                  <div className="bg-white sm:max-w-md sm:w-full sm:mx-auto sm:rounded-lg sm:overflow-hidden">
-                    <div className="flex flex-col">
-                      <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                        <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                          <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                            <table className="min-w-full divide-y divide-gray-200">
-                              <thead className="bg-gray-50">
-                                <tr>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                  >
-                                    Name
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                  >
-                                    {wallet
-                                      ? "Amount"
-                                      : "Connect wallet to see balances"}
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="relative px-6 py-3"
-                                  >
-                                    <span className="sr-only">Withdraw</span>
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {TCO2s.map((tco2, index) => (
-                                  <tr
-                                    key={tco2.address}
-                                    className={
-                                      index % 2 === 0
-                                        ? "bg-white"
-                                        : "bg-gray-50"
-                                    }
-                                  >
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                      {tco2.name}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                      {tco2.amount}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                      <button
-                                        onClick={() => {
-                                          withdrawTCO2(tco2.address);
-                                        }}
-                                        type="button"
-                                        className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                      >
-                                        Get TCO2
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                              <tfoot className="bg-gray-50">
-                                <tr>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                  >
-                                    Name
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                  >
-                                    {wallet
-                                      ? "Amount"
-                                      : "Connect wallet to see balances"}
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="relative px-6 py-3"
-                                  >
-                                    <span className="sr-only">Withdraw</span>
-                                  </th>
-                                </tr>
-                              </tfoot>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              </div>
+              <div className="mt-12">
+                <div className="bg-white sm:max-w-3xl sm:w-full sm:mx-auto sm:rounded-lg sm:overflow-hidden">
+                  <Table
+                    wallet={wallet}
+                    TCO2s={TCO2s}
+                    withdrawTCO2={withdrawTCO2}
+                    importTokenToWallet={importTokenToWallet}
+                  />
                 </div>
               </div>
             </div>
