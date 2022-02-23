@@ -35,10 +35,7 @@ const toastOptions: ToastOptions = {
   progress: undefined,
 };
 
-const oldFaucetAddress =
-  process.env.FAUCET_ADDRESS || "0x22cfba4E3FDcDDc857c292Aa23762b0d013c0B84";
-const faucetAddress =
-  process.env.FUCET_ADDRESS || "0x2797489A57713C62227EfBF56D49E15613Ab60E8"; // this one can use multiple TCO2s
+const faucetAddress = "0x0564A412E44dE08fd039E67FC9B323Dc521eF410"; // now also allows for BCT/NCT
 
 interface ifcTCO2 {
   name: string;
