@@ -15,6 +15,7 @@ import * as nctAbi from "../utils/NatureCarbonTonne.json";
 import * as tcoAbi from "../utils/ToucanCarbonOffsets.json";
 import Table from "../components/Table";
 
+// TODO this should be an env var
 const faucetAddress = "0x0564A412E44dE08fd039E67FC9B323Dc521eF410"; // now also allows for BCT/NCT
 
 const navigation = [
@@ -47,7 +48,7 @@ interface ifcToken {
 
 // TODO this is so scrappy in so many ways and needs a major clean up
 
-const Home: NextPage = ({ staticBalance }: any) => {
+const Home: NextPage = () => {
   const [wallet, setWallet] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
@@ -55,6 +56,8 @@ const Home: NextPage = ({ staticBalance }: any) => {
   const [TokenToDeposit, setTokenToDeposit] = useState<string>(
     "0xa5831eb637dff307395b5183c86b04c69c518681"
   );
+
+  // TODO this should be using the subgraph to get available TCO2s
   const [Tokens, setTokens] = useState<ifcToken[]>([
     {
       name: "TCO2_VCS_439_2008",
@@ -163,6 +166,8 @@ const Home: NextPage = ({ staticBalance }: any) => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
+
+      // TODO this is a mess
       // default use TCO2 abi
       let abiToUse = tcoAbi.abi;
       if (TokenToDeposit == Tokens[3].address) {
@@ -172,6 +177,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
         // use NCT abi
         abiToUse = nctAbi.abi;
       }
+
       const token = new ethers.Contract(TokenToDeposit, abiToUse, signer);
       const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
       await token.approve(
@@ -458,7 +464,8 @@ const Home: NextPage = ({ staticBalance }: any) => {
         </div>
       </footer>
 
-      {/* A modal with a form to deposit TCO2 */}
+      {/* A modal with a form to deposit tokens */}
+      {/* this could be separated into its own component file */}
       {depositModalOpen ? (
         <Transition.Root show={depositModalOpen} as={Fragment}>
           <Dialog
