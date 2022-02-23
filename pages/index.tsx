@@ -15,11 +15,13 @@ import * as nctAbi from "../utils/NatureCarbonTonne.json";
 import * as tcoAbi from "../utils/ToucanCarbonOffsets.json";
 import Table from "../components/Table";
 
+const faucetAddress = "0x0564A412E44dE08fd039E67FC9B323Dc521eF410"; // now also allows for BCT/NCT
+
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
   {
     name: "Faucet Polygonscan",
-    href: "https://mumbai.polygonscan.com/address/0x2797489A57713C62227EfBF56D49E15613Ab60E8",
+    href: `https://mumbai.polygonscan.com/address/${faucetAddress}`,
   },
   {
     name: "UI Repo",
@@ -36,8 +38,6 @@ const toastOptions: ToastOptions = {
   draggable: true,
   progress: undefined,
 };
-
-const faucetAddress = "0x0564A412E44dE08fd039E67FC9B323Dc521eF410"; // now also allows for BCT/NCT
 
 interface ifcToken {
   name: string;
