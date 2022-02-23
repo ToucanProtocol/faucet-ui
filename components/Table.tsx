@@ -42,6 +42,7 @@ const Table = ({
                 </tr>
               </thead>
               <tbody>
+                {/* TODO this should filter out tokens that the faucet doesn't have in its balance */}
                 {tokens.map((token, index) => (
                   <tr
                     key={token.address}
