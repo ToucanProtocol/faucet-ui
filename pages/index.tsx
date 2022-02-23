@@ -45,6 +45,8 @@ interface ifcToken {
   amount: string | "NaN";
 }
 
+// TODO this is so scrappy in so many ways and needs a major clean up
+
 const Home: NextPage = ({ staticBalance }: any) => {
   const [wallet, setWallet] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -161,11 +163,18 @@ const Home: NextPage = ({ staticBalance }: any) => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
-      // TODO adapt this to nct / bct
-      const tco = new ethers.Contract(TokenToDeposit, tcoAbi.abi, signer);
+      // default use TCO2 abi
+      let abiToUse = tcoAbi.abi;
+      if (TokenToDeposit == Tokens[3].address) {
+        // use BCT abi
+        abiToUse = bctAbi.abi;
+      } else if (TokenToDeposit == Tokens[4].address) {
+        // use NCT abi
+        abiToUse = nctAbi.abi;
+      }
+      const token = new ethers.Contract(TokenToDeposit, abiToUse, signer);
       const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
-      // TODO adapt this to nct / bct
-      await tco.approve(
+      await token.approve(
         faucet.address,
         ethers.utils.parseEther(amountToDeposit)
       );
