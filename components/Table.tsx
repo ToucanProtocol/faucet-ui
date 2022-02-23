@@ -2,15 +2,15 @@ import Link from "next/link";
 
 interface ifcTableProps {
   wallet: string | null;
-  TCO2s: any[];
-  withdrawTCO2: Function;
+  tokens: any[];
+  withdrawToken: Function;
   importTokenToWallet: Function;
 }
 
 const Table = ({
   wallet,
-  TCO2s,
-  withdrawTCO2,
+  tokens,
+  withdrawToken,
   importTokenToWallet,
 }: ifcTableProps) => {
   return (
@@ -42,21 +42,21 @@ const Table = ({
                 </tr>
               </thead>
               <tbody>
-                {TCO2s.map((tco2, index) => (
+                {tokens.map((token, index) => (
                   <tr
-                    key={tco2.address}
+                    key={token.address}
                     className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {tco2.name}
+                      {token.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {tco2.amount}
+                      {token.amount}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => {
-                          withdrawTCO2(tco2.address);
+                          withdrawToken(token.address);
                         }}
                         type="button"
                         className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -66,7 +66,7 @@ const Table = ({
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link
-                        href={`https://mumbai.polygonscan.com/token/${tco2.address}`}
+                        href={`https://mumbai.polygonscan.com/token/${token.address}`}
                       >
                         <a className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                           See on Polygonscan

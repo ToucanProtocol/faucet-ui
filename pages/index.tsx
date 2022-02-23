@@ -39,7 +39,7 @@ const toastOptions: ToastOptions = {
 
 const faucetAddress = "0x0564A412E44dE08fd039E67FC9B323Dc521eF410"; // now also allows for BCT/NCT
 
-interface ifcTCO2 {
+interface ifcToken {
   name: string;
   address: string;
   amount: string | "NaN";
@@ -50,10 +50,10 @@ const Home: NextPage = ({ staticBalance }: any) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [amountToDeposit, setAmountToDeposit] = useState<string>("1.0");
-  const [TCO2ToDeposit, setTCO2ToDeposit] = useState<string>(
+  const [TokenToDeposit, setTokenToDeposit] = useState<string>(
     "0xa5831eb637dff307395b5183c86b04c69c518681"
   );
-  const [TCO2s, setTCO2s] = useState<ifcTCO2[]>([
+  const [Tokens, setTokens] = useState<ifcToken[]>([
     {
       name: "TCO2_VCS_439_2008",
       address: "0xa5831eb637dff307395b5183c86b04c69c518681",
@@ -67,6 +67,16 @@ const Home: NextPage = ({ staticBalance }: any) => {
     {
       name: "TCO2_VCS_674_2014",
       address: "0xF7e61e0084287890E35e46dc7e077d7E5870Ae27",
+      amount: "NaN",
+    },
+    {
+      name: "BCT",
+      address: "0xf2438A14f668b1bbA53408346288f3d7C71c10a1",
+      amount: "NaN",
+    },
+    {
+      name: "NCT",
+      address: "0x7beCBA11618Ca63Ead5605DE235f6dD3b25c530E",
       amount: "NaN",
     },
   ]);
@@ -115,28 +125,28 @@ const Home: NextPage = ({ staticBalance }: any) => {
       const signer = provider.getSigner();
       const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
 
-      const newTCO2s = await Promise.all(
-        TCO2s.map(async (tco2): Promise<ifcTCO2> => {
-          const balanceTxn = await faucet.getTokenBalance(tco2.address, {
+      const newTokens = await Promise.all(
+        Tokens.map(async (token): Promise<ifcToken> => {
+          const balanceTxn = await faucet.getTokenBalance(token.address, {
             gasLimit: 1200000,
           });
           return {
-            name: tco2.name,
-            address: tco2.address,
+            name: token.name,
+            address: token.address,
             amount: ethers.utils.formatEther(balanceTxn),
           };
         })
       );
-      setTCO2s(newTCO2s);
+      setTokens(newTokens);
     } catch (error: any) {
-      console.error("error when fetching TCO2 balance of the faucet", error);
+      console.error("error when fetching token balances of the faucet", error);
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
     }
   };
 
-  const depositTCO2 = async () => {
+  const depositToken = async () => {
     try {
       if (!wallet) {
         throw new Error("Connect your wallet first.");
@@ -151,17 +161,18 @@ const Home: NextPage = ({ staticBalance }: any) => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
-      const tco = new ethers.Contract(TCO2ToDeposit, tcoAbi.abi, signer);
+      // TODO adapt this to nct / bct
+      const tco = new ethers.Contract(TokenToDeposit, tcoAbi.abi, signer);
       const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
-
+      // TODO adapt this to nct / bct
       await tco.approve(
         faucet.address,
         ethers.utils.parseEther(amountToDeposit)
       );
 
-      // we then deposit the amount of TCO2 into the faucet contract
+      // we then deposit the amount of tokens into the faucet contract
       const depositTxn = await faucet.deposit(
-        TCO2ToDeposit,
+        TokenToDeposit,
         ethers.utils.parseEther(amountToDeposit),
         {
           gasLimit: 1200000,
@@ -171,9 +182,9 @@ const Home: NextPage = ({ staticBalance }: any) => {
 
       console.log("deposit hash", depositTxn.hash);
 
-      toast(`You deposited ${amountToDeposit} TCO2s`, toastOptions);
+      toast(`You deposited ${amountToDeposit} Tokens`, toastOptions);
     } catch (error: any) {
-      console.error("error when depositing TCO2", error);
+      console.error("error when depositing tokens", error);
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
@@ -181,7 +192,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
     }
   };
 
-  const withdrawTCO2 = async (tco2Address: string) => {
+  const withdrawToken = async (tokenAddress: string) => {
     // TODO implement timeout messaging / error handling
     try {
       if (!wallet) {
@@ -202,7 +213,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
       const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
 
       const withdrawTxn = await faucet.withdraw(
-        tco2Address,
+        tokenAddress,
         ethers.utils.parseEther(amountToWithdraw),
         {
           gasLimit: 1200000,
@@ -210,12 +221,9 @@ const Home: NextPage = ({ staticBalance }: any) => {
       );
       await withdrawTxn.wait();
 
-      toast(
-        `🌳 Sent ${amountToWithdraw} TCO2-VCS-439-2008 to you.`,
-        toastOptions
-      );
+      toast(`🌳 Sent some tokens your way.`, toastOptions);
     } catch (error: any) {
-      console.error("Error when withdrawing TCO2", error);
+      console.error("Error when withdrawing tokens", error);
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
@@ -235,7 +243,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
     }
   }, []);
 
-  const importTokenToWallet = async (tco2Address: string) => {
+  const importTokenToWallet = async (tokenAddress: string) => {
     try {
       if (!wallet) {
         throw new Error("Connect your wallet first.");
@@ -248,8 +256,8 @@ const Home: NextPage = ({ staticBalance }: any) => {
         throw new Error("You need Metamask.");
       }
 
-      const tokenToBeAdded = TCO2s.filter((token) => {
-        return token.address == tco2Address;
+      const tokenToBeAdded = Tokens.filter((token) => {
+        return token.address == tokenAddress;
       });
 
       const wasAdded = await ethereum.request({
@@ -277,8 +285,8 @@ const Home: NextPage = ({ staticBalance }: any) => {
   return (
     <div>
       <Head>
-        <title>TCO2 Faucet</title>
-        <meta name="description" content="Get Mumbai TCO2." />
+        <title>TCO2 / BCT / NCT Faucet</title>
+        <meta name="description" content="Get Mumbai TCO2, BCT and/or NCT." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -400,11 +408,11 @@ const Home: NextPage = ({ staticBalance }: any) => {
                   <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                     <span className="md:block">A simple faucet</span>{" "}
                     <span className="text-indigo-400 md:block">
-                      for TCO2 tokens
+                      for TCO2, BCT and NCT tokens
                     </span>
                   </h1>
                   <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                    Connect your wallet and get some test TCO2 sent to your
+                    Connect your wallet and get some test tokens sent to your
                     Mumbai wallet. Please know that there is a 30s timeout after
                     each request.
                   </p>
@@ -414,8 +422,8 @@ const Home: NextPage = ({ staticBalance }: any) => {
                 <div className="bg-white sm:max-w-3xl sm:w-full sm:mx-auto sm:rounded-lg sm:overflow-hidden">
                   <Table
                     wallet={wallet}
-                    TCO2s={TCO2s}
-                    withdrawTCO2={withdrawTCO2}
+                    tokens={Tokens}
+                    withdrawToken={withdrawToken}
                     importTokenToWallet={importTokenToWallet}
                   />
                 </div>
@@ -434,7 +442,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
               }}
               className="cursor-pointer text-indigo-600 hover:text-indigo-900"
             >
-              deposit TCO2
+              deposit tokens
             </span>
             ?
           </p>
@@ -485,11 +493,11 @@ const Home: NextPage = ({ staticBalance }: any) => {
                         as="h3"
                         className="text-lg leading-6 font-medium text-gray-900"
                       >
-                        Deposit TCO2
+                        Deposit tokens
                       </Dialog.Title>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
-                          Thank you so much for wanting to deposit Mumbai TCO2
+                          Thank you so much for wanting to deposit Mumbai tokens
                           so other people can enjoy using it in their test apps.
                           You are awesome!
                         </p>
@@ -500,7 +508,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
-                        depositTCO2();
+                        depositToken();
                       }}
                     >
                       <div>
@@ -508,18 +516,18 @@ const Home: NextPage = ({ staticBalance }: any) => {
                           htmlFor="location"
                           className="block text-sm font-medium text-gray-700"
                         >
-                          TCO2 Type
+                          Token Type
                         </label>
                         <select
-                          onChange={(e) => setTCO2ToDeposit(e.target.value)}
-                          id="TCO2Type"
-                          name="TCO2Type"
+                          onChange={(e) => setTokenToDeposit(e.target.value)}
+                          id="TokenType"
+                          name="TokenType"
                           className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
                         >
-                          {TCO2s.map((tco2) => {
+                          {Tokens.map((token) => {
                             return (
-                              <option key={tco2.name} value={tco2.address}>
-                                {tco2.name}
+                              <option key={token.name} value={token.address}>
+                                {token.name}
                               </option>
                             );
                           })}
@@ -547,7 +555,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
                               className="text-gray-500 sm:text-sm"
                               id="amount-currency"
                             >
-                              TCO2
+                              TCO2 / BCT / NCT
                             </span>
                           </div>
                         </div>
@@ -556,7 +564,7 @@ const Home: NextPage = ({ staticBalance }: any) => {
                         type="submit"
                         className="mt-3 inline-flex items-center w-full justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
-                        Deposit TCO2
+                        Deposit Tokens
                       </button>
                     </form>
                     <button
