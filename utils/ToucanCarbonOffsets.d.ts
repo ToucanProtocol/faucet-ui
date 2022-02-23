@@ -288,7 +288,9 @@ export class ToucanCarbonOffsets extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    getAttributes(overrides?: CallOverrides): Promise<
+    getAttributes(
+      overrides?: CallOverrides
+    ): Promise<
       [
         [
           string,
@@ -443,7 +445,9 @@ export class ToucanCarbonOffsets extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  getAttributes(overrides?: CallOverrides): Promise<
+  getAttributes(
+    overrides?: CallOverrides
+  ): Promise<
     [
       [
         string,
@@ -593,7 +597,9 @@ export class ToucanCarbonOffsets extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    getAttributes(overrides?: CallOverrides): Promise<
+    getAttributes(
+      overrides?: CallOverrides
+    ): Promise<
       [
         [
           string,
