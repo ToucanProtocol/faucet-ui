@@ -9,7 +9,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastOptions } from "react-toastify";
 import { ethers } from "ethers";
 import { Loader } from "../components/Loader";
-import * as faucetAbi from "../utils/TCO2Faucet.json";
+import * as faucetAbi from "../utils/Faucet.json";
+import * as bctAbi from "../utils/BaseCarbonTonne.json";
+import * as nctAbi from "../utils/NatureCarbonTonne.json";
 import * as tcoAbi from "../utils/ToucanCarbonOffsets.json";
 import Table from "../components/Table";
 
