@@ -11,7 +11,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { Loader } from "../components/Loader";
 import Table from "../components/Table";
 import * as bctAbi from "../utils/BaseCarbonTonne.json";
-import { mumbaiFaucetAddress, mumbaiTokens } from "../utils/contants";
+import {
+  alfajoresFaucetAddress,
+  alfajoresTokens,
+  ChainId,
+  mumbaiFaucetAddress,
+  mumbaiTokens,
+} from "../utils/contants";
 import * as faucetAbi from "../utils/Faucet.json";
 import * as nctAbi from "../utils/NatureCarbonTonne.json";
 import * as tcoAbi from "../utils/ToucanCarbonOffsets.json";
@@ -49,11 +55,25 @@ const Home: NextPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [amountToDeposit, setAmountToDeposit] = useState<string>("1.0");
-  const [Tokens, setTokens] = useState<ifcToken[]>(mumbaiTokens);
-
-  const [TokenToDeposit, setTokenToDeposit] = useState<string>(
-    mumbaiTokens[0].address
+  const [chainId, setChainId] = useState<number>(ChainId.Mumbai);
+  const [Tokens, setTokens] = useState<ifcToken[]>(
+    chainId == ChainId.Mumbai ? mumbaiTokens : alfajoresTokens
   );
+  const [TokenToDeposit, setTokenToDeposit] = useState<string>(
+    chainId == ChainId.Mumbai
+      ? mumbaiTokens[0].address
+      : alfajoresTokens[0]?.address
+  );
+
+  useEffect(() => {
+    setTokens(chainId == ChainId.Mumbai ? mumbaiTokens : alfajoresTokens);
+    setTokenToDeposit(
+      chainId == ChainId.Mumbai
+        ? mumbaiTokens[0].address
+        : alfajoresTokens[0]?.address
+    );
+    fetchBalances();
+  }, [chainId]);
 
   const connectWallet = async () => {
     try {
@@ -67,8 +87,10 @@ const Home: NextPage = () => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const { chainId } = await provider.getNetwork();
-      if (chainId != 80001) {
-        throw new Error("Make sure you are on Mumbai Test Network.");
+      if (chainId != ChainId.Mumbai && chainId != ChainId.Alfajores) {
+        throw new Error(
+          "Make sure you are on Mumbai / Alfajores Test Network."
+        );
       }
 
       const accounts = await ethereum.request({
@@ -76,6 +98,7 @@ const Home: NextPage = () => {
       });
 
       setWallet(accounts[0]);
+      setChainId(chainId);
     } catch (error: any) {
       console.error("error when connecting wallet", error);
       toast.error(error.message, toastOptions);
@@ -96,9 +119,12 @@ const Home: NextPage = () => {
       }
 
       const provider = new ethers.providers.Web3Provider(ethereum);
+      const { chainId } = await provider.getNetwork();
       const signer = provider.getSigner();
       const faucet = new ethers.Contract(
-        mumbaiFaucetAddress,
+        chainId == ChainId.Mumbai
+          ? mumbaiFaucetAddress
+          : alfajoresFaucetAddress,
         faucetAbi.abi,
         signer
       );
