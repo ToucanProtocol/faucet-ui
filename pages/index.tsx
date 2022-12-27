@@ -1,19 +1,19 @@
+import { Dialog, Popover, Transition } from "@headlessui/react";
+import { MenuIcon, XIcon } from "@heroicons/react/outline";
+import { ethers } from "ethers";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { Fragment, useEffect, useState } from "react";
-import { Dialog, Popover, Transition } from "@headlessui/react";
-import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import Link from "next/link";
-import "react-toastify/dist/ReactToastify.css";
+import { Fragment, useEffect, useState } from "react";
 import { toast, ToastOptions } from "react-toastify";
-import { ethers } from "ethers";
+import "react-toastify/dist/ReactToastify.css";
 import { Loader } from "../components/Loader";
-import * as faucetAbi from "../utils/Faucet.json";
+import Table from "../components/Table";
 import * as bctAbi from "../utils/BaseCarbonTonne.json";
+import * as faucetAbi from "../utils/Faucet.json";
 import * as nctAbi from "../utils/NatureCarbonTonne.json";
 import * as tcoAbi from "../utils/ToucanCarbonOffsets.json";
-import Table from "../components/Table";
 
 // TODO this should be an env var
 const faucetAddress = "0x0564A412E44dE08fd039E67FC9B323Dc521eF410"; // now also allows for BCT/NCT
@@ -22,7 +22,7 @@ const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
   {
     name: "Faucet Polygonscan",
-    href: `https://mumbai.polygonscan.com/address/${faucetAddress}`,
+    href: `https://mumbai.polygonscan.com/address/${mumbaiFaucetAddress}`,
   },
   {
     name: "UI Repo",
