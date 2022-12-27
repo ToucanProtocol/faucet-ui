@@ -11,12 +11,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { Loader } from "../components/Loader";
 import Table from "../components/Table";
 import * as bctAbi from "../utils/BaseCarbonTonne.json";
+import { mumbaiFaucetAddress, mumbaiTokens } from "../utils/contants";
 import * as faucetAbi from "../utils/Faucet.json";
 import * as nctAbi from "../utils/NatureCarbonTonne.json";
 import * as tcoAbi from "../utils/ToucanCarbonOffsets.json";
-
-// TODO this should be an env var
-const faucetAddress = "0x0564A412E44dE08fd039E67FC9B323Dc521eF410"; // now also allows for BCT/NCT
 
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
@@ -46,45 +44,16 @@ interface ifcToken {
   amount: string | "NaN";
 }
 
-// TODO this is so scrappy in so many ways and needs a major clean up
-
 const Home: NextPage = () => {
   const [wallet, setWallet] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [amountToDeposit, setAmountToDeposit] = useState<string>("1.0");
-  const [TokenToDeposit, setTokenToDeposit] = useState<string>(
-    "0xa5831eb637dff307395b5183c86b04c69c518681"
-  );
+  const [Tokens, setTokens] = useState<ifcToken[]>(mumbaiTokens);
 
-  // TODO this should be using the subgraph to get available TCO2s
-  const [Tokens, setTokens] = useState<ifcToken[]>([
-    {
-      name: "TCO2_VCS_439_2008",
-      address: "0xa5831eb637dff307395b5183c86b04c69c518681",
-      amount: "NaN",
-    },
-    {
-      name: "TCO2_VCS_1190_2018",
-      address: "0xD3Ad9Dc261CA44b153125541D66Af2CF372C316a",
-      amount: "NaN",
-    },
-    {
-      name: "TCO2_VCS_674_2014",
-      address: "0xF7e61e0084287890E35e46dc7e077d7E5870Ae27",
-      amount: "NaN",
-    },
-    {
-      name: "BCT",
-      address: "0xf2438A14f668b1bbA53408346288f3d7C71c10a1",
-      amount: "NaN",
-    },
-    {
-      name: "NCT",
-      address: "0x7beCBA11618Ca63Ead5605DE235f6dD3b25c530E",
-      amount: "NaN",
-    },
-  ]);
+  const [TokenToDeposit, setTokenToDeposit] = useState<string>(
+    mumbaiTokens[0].address
+  );
 
   const connectWallet = async () => {
     try {
@@ -128,7 +97,11 @@ const Home: NextPage = () => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
-      const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
+      const faucet = new ethers.Contract(
+        mumbaiFaucetAddress,
+        faucetAbi.abi,
+        signer
+      );
 
       const newTokens = await Promise.all(
         Tokens.map(async (token): Promise<ifcToken> => {
@@ -179,7 +152,11 @@ const Home: NextPage = () => {
       }
 
       const token = new ethers.Contract(TokenToDeposit, abiToUse, signer);
-      const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
+      const faucet = new ethers.Contract(
+        mumbaiFaucetAddress,
+        faucetAbi.abi,
+        signer
+      );
       await token.approve(
         faucet.address,
         ethers.utils.parseEther(amountToDeposit)
@@ -225,7 +202,11 @@ const Home: NextPage = () => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
-      const faucet = new ethers.Contract(faucetAddress, faucetAbi.abi, signer);
+      const faucet = new ethers.Contract(
+        mumbaiFaucetAddress,
+        faucetAbi.abi,
+        signer
+      );
 
       const withdrawTxn = await faucet.withdraw(
         tokenAddress,
