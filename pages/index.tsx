@@ -298,16 +298,14 @@ const Home: NextPage = () => {
               <div className="flex items-center flex-1">
                 <div className="flex items-center justify-between w-full md:w-auto">
                   <Link href="https://toucan.earth">
-                    <a>
-                      <span className="sr-only">Toucan</span>
-                      <Image
-                        src="/toucan-logo.svg"
-                        width="128"
-                        height="64"
-                        className="h-8 w-auto sm:h-10"
-                        alt="Toucan logo"
-                      />
-                    </a>
+                    <span className="sr-only">Toucan</span>
+                    <Image
+                      src="/toucan-logo.svg"
+                      width="128"
+                      height="64"
+                      className="h-8 w-auto sm:h-10"
+                      alt="Toucan logo"
+                    />
                   </Link>
                   <div className="-mr-2 flex items-center md:hidden">
                     <Popover.Button className="bg-gray-800 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-700 focus:outline-none focus:ring-2 focus-ring-inset focus:ring-white">
@@ -318,13 +316,13 @@ const Home: NextPage = () => {
                 </div>
                 <div className="hidden space-x-10 md:flex md:ml-10">
                   {navigation.map((item) => (
-                    <a
+                    <Link
                       key={item.name}
                       href={item.href}
                       className="font-medium text-white hover:text-gray-300"
                     >
                       {item.name}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -370,13 +368,13 @@ const Home: NextPage = () => {
                   </div>
                   <div className="px-2 pt-2 pb-3 space-y-1">
                     {navigation.map((item) => (
-                      <a
+                      <Link
                         key={item.name}
                         href={item.href}
                         className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                       >
                         {item.name}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                   {/* if the wallet exists don't render anything, if yes render a wallet connection btn */}
