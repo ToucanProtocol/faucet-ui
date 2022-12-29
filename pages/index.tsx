@@ -8,9 +8,11 @@ import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import { toast, ToastOptions } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import * as bctAbi from "../artifacts/BaseCarbonTonne.json";
+import * as nctAbi from "../artifacts/NatureCarbonTonne.json";
+import * as tcoAbi from "../artifacts/ToucanCarbonOffsets.json";
 import { Loader } from "../components/Loader";
 import Table from "../components/Table";
-import * as bctAbi from "../utils/BaseCarbonTonne.json";
 import {
   alfajoresFaucetAddress,
   alfajoresTokens,
@@ -19,8 +21,6 @@ import {
   mumbaiTokens,
 } from "../utils/contants";
 import * as faucetAbi from "../utils/Faucet.json";
-import * as nctAbi from "../utils/NatureCarbonTonne.json";
-import * as tcoAbi from "../utils/ToucanCarbonOffsets.json";
 
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
