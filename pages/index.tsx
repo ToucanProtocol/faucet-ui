@@ -8,20 +8,20 @@ import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import { toast, ToastOptions } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import * as IERC20Abi from "../artifacts/IERC20.json";
 import { Loader } from "../components/Loader";
 import Table from "../components/Table";
-import * as bctAbi from "../utils/BaseCarbonTonne.json";
-import { mumbaiFaucetAddress, mumbaiTokens } from "../utils/contants";
-import * as faucetAbi from "../utils/Faucet.json";
-import * as nctAbi from "../utils/NatureCarbonTonne.json";
-import * as tcoAbi from "../utils/ToucanCarbonOffsets.json";
+import {
+  getChainId,
+  getChainName,
+  getFaucetContract,
+  getSigner,
+  getTokens,
+} from "../utils";
+import { ChainId } from "../utils/contants";
 
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
-  {
-    name: "Faucet Polygonscan",
-    href: `https://mumbai.polygonscan.com/address/${mumbaiFaucetAddress}`,
-  },
   {
     name: "UI Repo",
     href: "https://github.com/lazaralex98/TCO2-Faucet-UI",
@@ -38,10 +38,11 @@ const toastOptions: ToastOptions = {
   progress: undefined,
 };
 
-interface ifcToken {
+export interface ifcToken {
   name: string;
   address: string;
   amount: string | "NaN";
+  blockScanner: string;
 }
 
 const Home: NextPage = () => {
@@ -49,11 +50,17 @@ const Home: NextPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [amountToDeposit, setAmountToDeposit] = useState<string>("1.0");
-  const [Tokens, setTokens] = useState<ifcToken[]>(mumbaiTokens);
-
+  const [chainId, setChainId] = useState<number>(ChainId.Mumbai);
+  const [Tokens, setTokens] = useState<ifcToken[]>(getTokens(chainId));
   const [TokenToDeposit, setTokenToDeposit] = useState<string>(
-    mumbaiTokens[0].address
+    getTokens(chainId)[0].address
   );
+
+  useEffect(() => {
+    setTokens(getTokens(chainId));
+    setTokenToDeposit(getTokens(chainId)[0].address);
+    fetchBalances();
+  }, [chainId]);
 
   const connectWallet = async () => {
     try {
@@ -67,8 +74,10 @@ const Home: NextPage = () => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const { chainId } = await provider.getNetwork();
-      if (chainId != 80001) {
-        throw new Error("Make sure you are on Mumbai Test Network.");
+      if (chainId != ChainId.Mumbai && chainId != ChainId.Alfajores) {
+        throw new Error(
+          "Make sure you are on Mumbai / Alfajores Test Network."
+        );
       }
 
       const accounts = await ethereum.request({
@@ -76,12 +85,13 @@ const Home: NextPage = () => {
       });
 
       setWallet(accounts[0]);
+      setChainId(chainId);
     } catch (error: any) {
       console.error("error when connecting wallet", error);
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
-      fetchBalances();
+      await fetchBalances();
     }
   };
 
@@ -95,26 +105,23 @@ const Home: NextPage = () => {
         throw new Error("You need Metamask.");
       }
 
-      const provider = new ethers.providers.Web3Provider(ethereum);
-      const signer = provider.getSigner();
-      const faucet = new ethers.Contract(
-        mumbaiFaucetAddress,
-        faucetAbi.abi,
-        signer
-      );
+      const actualChainId = await getChainId();
+      const actualTokens = getTokens(actualChainId);
 
-      const newTokens = await Promise.all(
-        Tokens.map(async (token): Promise<ifcToken> => {
-          const balanceTxn = await faucet.getTokenBalance(token.address, {
-            gasLimit: 1200000,
-          });
-          return {
-            name: token.name,
-            address: token.address,
-            amount: ethers.utils.formatEther(balanceTxn),
-          };
-        })
+      const signer = getSigner();
+      const faucet = getFaucetContract(actualChainId, signer);
+
+      const balances = await faucet.getTokenBalances(
+        actualTokens.map((t) => t.address)
       );
+      const newTokens = actualTokens.map((t, i) => {
+        return {
+          ...t,
+          amount: ethers.utils.formatEther(balances[i]),
+        };
+      });
+
+      setChainId(actualChainId);
       setTokens(newTokens);
     } catch (error: any) {
       console.error("error when fetching token balances of the faucet", error);
@@ -140,23 +147,9 @@ const Home: NextPage = () => {
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
 
-      // TODO this is a mess
-      // default use TCO2 abi
-      let abiToUse = tcoAbi.abi;
-      if (TokenToDeposit == Tokens[3].address) {
-        // use BCT abi
-        abiToUse = bctAbi.abi;
-      } else if (TokenToDeposit == Tokens[4].address) {
-        // use NCT abi
-        abiToUse = nctAbi.abi;
-      }
+      const token = new ethers.Contract(TokenToDeposit, IERC20Abi.abi, signer);
+      const faucet = getFaucetContract(chainId, signer);
 
-      const token = new ethers.Contract(TokenToDeposit, abiToUse, signer);
-      const faucet = new ethers.Contract(
-        mumbaiFaucetAddress,
-        faucetAbi.abi,
-        signer
-      );
       await token.approve(
         faucet.address,
         ethers.utils.parseEther(amountToDeposit)
@@ -202,11 +195,7 @@ const Home: NextPage = () => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
-      const faucet = new ethers.Contract(
-        mumbaiFaucetAddress,
-        faucetAbi.abi,
-        signer
-      );
+      const faucet = getFaucetContract(chainId, signer);
 
       const withdrawTxn = await faucet.withdraw(
         tokenAddress,
@@ -329,7 +318,9 @@ const Home: NextPage = () => {
               <div className="hidden md:flex">
                 {/* if the wallet exists don't render anything, if yes render a wallet connection btn */}
                 {wallet ? (
-                  ""
+                  <div className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600">
+                    {`You're connected on ${getChainName(chainId)}`}
+                  </div>
                 ) : (
                   <button
                     onClick={() => {
@@ -407,8 +398,8 @@ const Home: NextPage = () => {
                   </h1>
                   <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
                     Connect your wallet and get some test tokens sent to your
-                    Mumbai wallet. Please know that there is a 30s timeout after
-                    each request.
+                    testnet wallet. Please know that there is a 30s timeout
+                    after each request.
                   </p>
                 </div>
               </div>
