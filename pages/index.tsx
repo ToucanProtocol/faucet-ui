@@ -25,10 +25,6 @@ import * as faucetAbi from "../utils/Faucet.json";
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
   {
-    name: "Faucet Polygonscan",
-    href: `https://mumbai.polygonscan.com/address/${mumbaiFaucetAddress}`,
-  },
-  {
     name: "UI Repo",
     href: "https://github.com/lazaralex98/TCO2-Faucet-UI",
   },
