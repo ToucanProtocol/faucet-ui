@@ -5,11 +5,6 @@ export const mumbaiTokens = [
     amount: "NaN",
   },
   {
-    name: "TCO2_VCS_1190_2018",
-    address: "0xD3Ad9Dc261CA44b153125541D66Af2CF372C316a",
-    amount: "NaN",
-  },
-  {
     name: "TCO2_VCS_674_2014",
     address: "0xF7e61e0084287890E35e46dc7e077d7E5870Ae27",
     amount: "NaN",
