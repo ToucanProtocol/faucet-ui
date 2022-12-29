@@ -27,6 +27,32 @@ export const mumbaiTokens: ifcToken[] = [
   },
 ];
 
+export const alfajoresTokens: ifcToken[] = [
+  {
+    name: "TCO2_VCS_1052_2012",
+    address: "0xB297F730E741a822a426c737eCD0F7877A9a2c22",
+    amount: "NaN",
+    blockScanner: "https://alfajores.celoscan.io/",
+  },
+  {
+    name: "TCO2_VCS_1671_2018",
+    address: "0xF0a5bF1336372FdBc2C877bCcb03310D85e0BF81",
+    amount: "NaN",
+    blockScanner: "https://alfajores.celoscan.io/",
+  },
+  {
+    name: "BCT",
+    address: "0x4c5f90C50Ca9F849bb75D93a393A4e1B6E68Accb",
+    amount: "NaN",
+    blockScanner: "https://alfajores.celoscan.io/",
+  },
+  {
+    name: "NCT",
+    address: "0xfb60a08855389F3c0A66b29aB9eFa911ed5cbCB5",
+    amount: "NaN",
+    blockScanner: "https://alfajores.celoscan.io/",
+  },
+];
 export const mumbaiFaucetAddress = "0x0564A412E44dE08fd039E67FC9B323Dc521eF410";
 
 export const alfajoresTokens: {
