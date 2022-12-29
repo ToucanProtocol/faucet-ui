@@ -53,15 +53,6 @@ export const alfajoresTokens: ifcToken[] = [
     blockScanner: "https://alfajores.celoscan.io/",
   },
 ];
-export const mumbaiFaucetAddress = "0x0564A412E44dE08fd039E67FC9B323Dc521eF410";
-
-export const alfajoresTokens: {
-  name: string;
-  address: string;
-  amount: string;
-}[] = [];
-
-export const alfajoresFaucetAddress = "";
 
 export enum ChainId {
   Mumbai = 80001,
