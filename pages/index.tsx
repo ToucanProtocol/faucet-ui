@@ -318,7 +318,9 @@ const Home: NextPage = () => {
               <div className="hidden md:flex">
                 {/* if the wallet exists don't render anything, if yes render a wallet connection btn */}
                 {wallet ? (
-                  ""
+                  <div className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600">
+                    {`You're connected on ${getChainName(chainId)}`}
+                  </div>
                 ) : (
                   <button
                     onClick={() => {
