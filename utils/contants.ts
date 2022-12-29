@@ -1,4 +1,6 @@
-export const mumbaiTokens = [
+import { ifcToken } from "../pages";
+
+export const mumbaiTokens: ifcToken[] = [
   {
     name: "TCO2_VCS_439_2008",
     address: "0xa5831eb637dff307395b5183c86b04c69c518681",

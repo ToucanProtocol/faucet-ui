@@ -44,7 +44,7 @@ const toastOptions: ToastOptions = {
   progress: undefined,
 };
 
-interface ifcToken {
+export interface ifcToken {
   name: string;
   address: string;
   amount: string | "NaN";
