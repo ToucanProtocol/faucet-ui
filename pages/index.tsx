@@ -8,19 +8,17 @@ import Link from "next/link";
 import { Fragment, useEffect, useState } from "react";
 import { toast, ToastOptions } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import * as bctAbi from "../artifacts/BaseCarbonTonne.json";
-import * as nctAbi from "../artifacts/NatureCarbonTonne.json";
-import * as tcoAbi from "../artifacts/ToucanCarbonOffsets.json";
+import * as IERC20Abi from "../artifacts/IERC20.json";
 import { Loader } from "../components/Loader";
 import Table from "../components/Table";
 import {
-  alfajoresFaucetAddress,
-  alfajoresTokens,
-  ChainId,
-  mumbaiFaucetAddress,
-  mumbaiTokens,
-} from "../utils/contants";
-import * as faucetAbi from "../utils/Faucet.json";
+  getChainId,
+  getChainName,
+  getFaucetContract,
+  getSigner,
+  getTokens,
+} from "../utils";
+import { ChainId } from "../utils/contants";
 
 const navigation = [
   { name: "Faucet Repo", href: "https://github.com/lazaralex98/TCO2-Faucet" },
@@ -53,22 +51,14 @@ const Home: NextPage = () => {
   const [depositModalOpen, setDepositModalOpen] = useState<boolean>(false);
   const [amountToDeposit, setAmountToDeposit] = useState<string>("1.0");
   const [chainId, setChainId] = useState<number>(ChainId.Mumbai);
-  const [Tokens, setTokens] = useState<ifcToken[]>(
-    chainId == ChainId.Mumbai ? mumbaiTokens : alfajoresTokens
-  );
+  const [Tokens, setTokens] = useState<ifcToken[]>(getTokens(chainId));
   const [TokenToDeposit, setTokenToDeposit] = useState<string>(
-    chainId == ChainId.Mumbai
-      ? mumbaiTokens[0].address
-      : alfajoresTokens[0]?.address
+    getTokens(chainId)[0].address
   );
 
   useEffect(() => {
-    setTokens(chainId == ChainId.Mumbai ? mumbaiTokens : alfajoresTokens);
-    setTokenToDeposit(
-      chainId == ChainId.Mumbai
-        ? mumbaiTokens[0].address
-        : alfajoresTokens[0]?.address
-    );
+    setTokens(getTokens(chainId));
+    setTokenToDeposit(getTokens(chainId)[0].address);
     fetchBalances();
   }, [chainId]);
 
@@ -101,7 +91,7 @@ const Home: NextPage = () => {
       toast.error(error.message, toastOptions);
     } finally {
       setLoading(false);
-      fetchBalances();
+      await fetchBalances();
     }
   };
 
@@ -115,29 +105,23 @@ const Home: NextPage = () => {
         throw new Error("You need Metamask.");
       }
 
-      const provider = new ethers.providers.Web3Provider(ethereum);
-      const { chainId } = await provider.getNetwork();
-      const signer = provider.getSigner();
-      const faucet = new ethers.Contract(
-        chainId == ChainId.Mumbai
-          ? mumbaiFaucetAddress
-          : alfajoresFaucetAddress,
-        faucetAbi.abi,
-        signer
-      );
+      const actualChainId = await getChainId();
+      const actualTokens = getTokens(actualChainId);
 
-      const newTokens = await Promise.all(
-        Tokens.map(async (token): Promise<ifcToken> => {
-          const balanceTxn = await faucet.getTokenBalance(token.address, {
-            gasLimit: 1200000,
-          });
-          return {
-            name: token.name,
-            address: token.address,
-            amount: ethers.utils.formatEther(balanceTxn),
-          };
-        })
+      const signer = getSigner();
+      const faucet = getFaucetContract(actualChainId, signer);
+
+      const balances = await faucet.getTokenBalances(
+        actualTokens.map((t) => t.address)
       );
+      const newTokens = actualTokens.map((t, i) => {
+        return {
+          ...t,
+          amount: ethers.utils.formatEther(balances[i]),
+        };
+      });
+
+      setChainId(actualChainId);
       setTokens(newTokens);
     } catch (error: any) {
       console.error("error when fetching token balances of the faucet", error);
@@ -163,23 +147,9 @@ const Home: NextPage = () => {
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
 
-      // TODO this is a mess
-      // default use TCO2 abi
-      let abiToUse = tcoAbi.abi;
-      if (TokenToDeposit == Tokens[3].address) {
-        // use BCT abi
-        abiToUse = bctAbi.abi;
-      } else if (TokenToDeposit == Tokens[4].address) {
-        // use NCT abi
-        abiToUse = nctAbi.abi;
-      }
+      const token = new ethers.Contract(TokenToDeposit, IERC20Abi.abi, signer);
+      const faucet = getFaucetContract(chainId, signer);
 
-      const token = new ethers.Contract(TokenToDeposit, abiToUse, signer);
-      const faucet = new ethers.Contract(
-        mumbaiFaucetAddress,
-        faucetAbi.abi,
-        signer
-      );
       await token.approve(
         faucet.address,
         ethers.utils.parseEther(amountToDeposit)
@@ -225,11 +195,7 @@ const Home: NextPage = () => {
 
       const provider = new ethers.providers.Web3Provider(ethereum);
       const signer = provider.getSigner();
-      const faucet = new ethers.Contract(
-        mumbaiFaucetAddress,
-        faucetAbi.abi,
-        signer
-      );
+      const faucet = getFaucetContract(chainId, signer);
 
       const withdrawTxn = await faucet.withdraw(
         tokenAddress,
