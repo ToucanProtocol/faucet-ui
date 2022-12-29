@@ -68,9 +68,9 @@ const Table = ({
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link
                         className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        href={`https://mumbai.polygonscan.com/token/${token.address}`}
+                        href={`${token.blockScanner}address/${token.address}`}
                       >
-                        See on Polygonscan
+                        See on block scanner
                       </Link>
                     </td>
                   </tr>

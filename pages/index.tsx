@@ -48,6 +48,7 @@ export interface ifcToken {
   name: string;
   address: string;
   amount: string | "NaN";
+  blockScanner: string;
 }
 
 const Home: NextPage = () => {
